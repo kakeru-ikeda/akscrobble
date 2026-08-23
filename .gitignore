@@ -1,0 +1,9 @@
+tools/android-sdk
+tools/sdk-tmp/
+tools/cmdline-tools.zip
+build/secrets.env
+*.keystore
+*.idsig
+artifacts/
+__pycache__/
+.pytest_cache/
