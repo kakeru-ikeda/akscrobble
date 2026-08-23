@@ -22,8 +22,10 @@ public final class ConfigTests {
                 ConfigFile.template().contains("last.fm/api/account/create"));
         TestKit.check("template says the callback fields stay empty",
                 ConfigFile.template().contains("Callback URL"));
-        TestKit.check("template says no button press is needed",
-                ConfigFile.template().contains("no button needs to be pressed"));
+        TestKit.check("template tells the user to import it",
+                ConfigFile.template().contains("Load configuration"));
+        TestKit.check("template says how to confirm it took effect",
+                ConfigFile.template().contains("api_key source"));
         TestKit.check("template says it wins over in-app values",
                 ConfigFile.template().contains("take precedence"));
         // 雛形は自分自身の書式で読み戻せること。コメント行が parse を壊さない保証。

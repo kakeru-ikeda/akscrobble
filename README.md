@@ -74,10 +74,15 @@ done on the player or through its MTP storage.
    api_secret=your_api_secret_here
    ```
 
-   The file is read every time credentials are resolved, so no button needs to
-   be pressed. Leave `session_key` empty; the app obtains and stores it during
-   authentication. Values in this file take precedence over anything entered in
-   the app.
+   Then tap **Load configuration file** on the main screen. Leave `session_key`
+   empty; the app obtains and stores it during authentication. Values in this
+   file take precedence over anything entered in the app.
+
+   Confirm it worked by reading the status area at the bottom of the main
+   screen. `api_key source:` should read `config`, and after step 8 `auth:`
+   should show your Last.fm user name. If `api_key source:` still says `unset`,
+   the file was not picked up: check the path and spelling, then tap **Load
+   configuration file** again.
 
    **Alternative: type them in the app.** Open **API key**, paste both values,
    and save. Each field shows where its value is currently resolved from, so you
