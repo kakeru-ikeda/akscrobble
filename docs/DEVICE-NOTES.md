@@ -7,7 +7,7 @@
 ## Install path
 
 素の `.apk` は端末上では必ず「解析中に問題が発生しました」となり、インストールできません。
-MTP で内部ストレージの `OpenService` フォルダへ `.xapk` を置き、AK 謹製インストーラから
+MTP で内部ストレージの `OpenService` フォルダへ `.xapk` を置き、Open APP Service から
 インストールする経路だけが利用できます。
 
 実機では、`base.apk`、空の config split 1 本、`manifest.json` を含み、

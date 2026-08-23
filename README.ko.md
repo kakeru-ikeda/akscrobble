@@ -99,7 +99,7 @@ Amazon Music (`com.amazon.mp3`)은 `onGetRoot` 메서드가 `null`을 반환하�
     ```
 
 플레이어에서 `.apk`를 직접 열지 마세요. Astell&Kern은 해당 설치 경로를 비활성화하므로
-항상 패키지 구문 분석 오류가 발생합니다. 위의 OpenService `.xapk` 절차를 사용하세요.
+항상 패키지 구문 분석 오류가 발생합니다. 위의 Open APP Service `.xapk` 절차를 사용하세요.
 
 ## 문자열 정리 규칙
 

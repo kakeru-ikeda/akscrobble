@@ -55,8 +55,8 @@ done on the player or through its MTP storage.
    player from the `OpenService` folder. Leftovers can cause duplicate entries
    and name collisions.
 3. Copy the downloaded `.xapk` file into the `OpenService` folder.
-4. On the player, open OpenService and install AKScrobble from the list.
-   OpenService installs at most four applications; if the device has already
+4. On the player, open Open APP Service and install AKScrobble from the list.
+   Open APP Service installs at most four applications; if the device has already
    reached that limit, uninstall one before installing AKScrobble.
 5. Launch AKScrobble and choose a language with the buttons at the top.
 6. Grant storage permission. AKScrobble needs it to retrieve AK Music album
@@ -104,7 +104,7 @@ done on the player or through its MTP storage.
 
 Do not try to open the `.apk` directly on the player. Astell&Kern disables that
 installation path, so it always ends with a package parsing error; use the
-OpenService `.xapk` procedure above.
+Open APP Service `.xapk` procedure above.
 
 ## Sanitize rules
 
@@ -173,13 +173,13 @@ Music rejects it. If you get an unsupported app working locally, please
 
 Check the player's `OpenService` folder for older `.xapk` files and folders that
 the player extracted previously. Delete those leftovers, copy only the current
-`.xapk` into the folder, and reopen OpenService.
+`.xapk` into the folder, and reopen Open APP Service.
 
 ### The player says there was a problem parsing the package
 
 Check whether you tried to open an `.apk` directly. The AK firmware disables
 that installation route. Download the `.xapk` release and install it through
-OpenService as described above.
+Open APP Service as described above.
 
 ### Last.fm authentication fails
 
