@@ -1,6 +1,9 @@
 package com.akscrobble;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -42,14 +45,14 @@ public final class AuthActivity extends Activity {
         LinearLayout buttons = new LinearLayout(this);
         buttons.setOrientation(LinearLayout.VERTICAL);
         addButton(buttons, Ui.s(this, Strings.AUTH_OPEN_APPROVAL), new View.OnClickListener() {
-            @Override public void onClick(View view) { requestToken(true); }
+            @Override public void onClick(View view) { requestToken(true, false); }
         });
         addButton(buttons, Ui.s(this, Strings.AUTH_GET_SESSION), new View.OnClickListener() {
             @Override public void onClick(View view) { requestSession(false); }
         });
         addButton(buttons, Ui.s(this, Strings.AUTH_SHOW_PC_URL), new View.OnClickListener() {
             @Override public void onClick(View view) {
-                if (approvalUrl == null) requestToken(false); else showApprovalUrl();
+                if (approvalUrl == null) requestToken(false, true); else showApprovalUrl(true);
             }
         });
         addButton(buttons, Ui.s(this, Strings.AUTH_IMPORT_CONFIG), new View.OnClickListener() {
@@ -66,7 +69,7 @@ public final class AuthActivity extends Activity {
 
         status = new TextView(this);
         status.setTextIsSelectable(true);
-        status.setTextColor(Color.WHITE);
+        status.setTextColor(Color.BLACK);
         status.setPadding(4, 10, 4, 10);
         root.addView(status, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
@@ -95,7 +98,7 @@ public final class AuthActivity extends Activity {
         new ConfigStore(this).writeTemplateIfAbsent();
     }
 
-    private void requestToken(final boolean openWebView) {
+    private void requestToken(final boolean openWebView, final boolean copyUrl) {
         final Credentials credentials = credentials();
         if (credentials.apiKey.length() == 0 || credentials.apiSecret.length() == 0) {
             show(Ui.s(this, Strings.AUTH_CREDENTIALS_MISSING));
@@ -114,7 +117,7 @@ public final class AuthActivity extends Activity {
                 approvalUrl = buildApprovalUrl(credentials.apiKey, token);
                 runOnUiThread(new Runnable() {
                     @Override public void run() {
-                        showApprovalUrl();
+                        showApprovalUrl(copyUrl);
                         if (openWebView) {
                             if (webView == null) show(Ui.s(AuthActivity.this,
                                     Strings.AUTH_OPEN_ON_PC, approvalUrl));
@@ -188,7 +191,19 @@ public final class AuthActivity extends Activity {
         settings.setUserAgentString(replaceUa.isChecked() ? DESKTOP_UA : null);
     }
 
-    private void showApprovalUrl() { show(Ui.s(this, Strings.AUTH_APPROVAL_URL, approvalUrl)); }
+    private void showApprovalUrl(boolean copy) {
+        show(Ui.s(this, Strings.AUTH_APPROVAL_URL, approvalUrl));
+        if (copy && copyToClipboard(approvalUrl)) {
+            show(Ui.s(this, Strings.AUTH_APPROVAL_URL_COPIED, approvalUrl));
+        }
+    }
+    private boolean copyToClipboard(String text) {
+        try {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboard.setPrimaryClip(ClipData.newPlainText("Last.fm approval URL", text));
+            return true;
+        } catch (RuntimeException unavailable) { return false; }
+    }
     private void show(final String text) { status.setText(text); }
     private void showFromWorker(final String text) {
         runOnUiThread(new Runnable() { @Override public void run() { show(text); } });

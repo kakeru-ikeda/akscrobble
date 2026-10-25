@@ -58,6 +58,7 @@ public final class Strings {
     public static final String AUTH_SESSION_FAILED = "auth.session_failed";
     public static final String AUTH_CONFIG_SESSION_MISSING = "auth.config_session_missing";
     public static final String AUTH_APPROVAL_URL = "auth.approval_url";
+    public static final String AUTH_APPROVAL_URL_COPIED = "auth.approval_url_copied";
     public static final String QUEUE_REFRESH = "queue.refresh";
     public static final String QUEUE_SEND_NOW = "queue.send_now";
     public static final String QUEUE_RETRY_DEAD = "queue.retry_dead";
@@ -170,6 +171,7 @@ public final class Strings {
         {AUTH_SESSION_FAILED, "セッション取得失敗: {0}", "Failed to get session: {0}", "세션 가져오기 실패: {0}"},
         {AUTH_CONFIG_SESSION_MISSING, "設定ファイルに session_key がありません。", "The configuration file has no session_key.", "설정 파일에 session_key가 없습니다."},
         {AUTH_APPROVAL_URL, "PC でも開ける承認 URL:\n{0}", "Approval URL (can also be opened on a PC):\n{0}", "PC에서도 열 수 있는 승인 URL:\n{0}"},
+        {AUTH_APPROVAL_URL_COPIED, "承認 URL をクリップボードにコピーしました:\n{0}", "Approval URL copied to the clipboard:\n{0}", "승인 URL을 클립보드에 복사했습니다:\n{0}"},
         {QUEUE_REFRESH, "更新", "Refresh", "새로고침"},
         {QUEUE_SEND_NOW, "今すぐ送信", "Send now", "지금 보내기"},
         {QUEUE_RETRY_DEAD, "dead を再送", "Retry dead", "dead 다시 보내기"},
