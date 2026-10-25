@@ -7,8 +7,8 @@
 ## What is this
 
 AKScrobble is a Last.fm scrobbler for Astell&Kern digital audio players. It has
-been tested on the A&ultima SP2000T running Android 9; other Astell&Kern models
-have not been tested.
+been tested on the A&ultima SP2000T running Android 9 and on the SP3000 series;
+other Astell&Kern models have not been tested.
 
 **No root is required.** Everything from installation to scrobbling works on a
 stock device. Enabling ADB, which is needed for a single battery-optimization
@@ -23,6 +23,13 @@ consequences.
 | ![Main screen](docs/images/main.png) | ![Sanitize settings](docs/images/sanitize.png) | ![Enable ADB](docs/images/adb.png) |
 
 Screenshots are from an SP2000T with the interface set to English.
+
+### Why use it on an SP3000
+
+AK Music leaves the album name out of the metadata it publishes, so a scrobbler
+that only reads that metadata, such as Pano Scrobbler, cannot send the album.
+AKScrobble looks the album up in MediaStore instead, so AK Music plays reach
+Last.fm with the correct album.
 
 ## Supported players
 
@@ -49,6 +56,25 @@ considered based on demand.
 done on the player or through its MTP storage.
 
 ## Installation (from zero to scrobbling)
+
+The file you install depends on the player's firmware:
+
+- Astell&Kern firmware: install the `.xapk` through Open APP Service, as in
+  steps 1 to 4 below.
+- Full Android firmware (SP3000 series): install the `.apk` with any file
+  explorer app on the player, as described next. This is a plain `.apk`, not
+  the `.xapk`.
+
+For full Android firmware, replace steps 1 to 4 with this, then continue from
+step 5. The rest of the procedure is the same.
+
+1. Download `akscrobble-<version>.apk` from [GitHub
+   Releases](https://github.com/kakeru-ikeda/akscrobble/releases) onto the
+   player, or copy it there over MTP.
+2. Open a file explorer app on the player, tap the `.apk`, and install it. If
+   Android asks, allow that file explorer to install apps.
+
+For the Astell&Kern firmware, follow all of the steps below.
 
 1. Download `akscrobble-<version>.xapk` from [GitHub
    Releases](https://github.com/kakeru-ikeda/akscrobble/releases).
@@ -104,9 +130,10 @@ done on the player or through its MTP storage.
     adb shell dumpsys deviceidle whitelist +fm.last.android
     ```
 
-Do not try to open the `.apk` directly on the player. Astell&Kern disables that
-installation path, so it always ends with a package parsing error; use the
-Open APP Service `.xapk` procedure above.
+On the Astell&Kern firmware, do not try to open the `.apk` directly on the
+player. That installation path is disabled, so it always ends with a package
+parsing error; use the Open APP Service `.xapk` procedure above. This applies
+only to the Astell&Kern firmware, not to full Android firmware.
 
 ## Sanitize rules
 
@@ -179,9 +206,10 @@ the player extracted previously. Delete those leftovers, copy only the current
 
 ### The player says there was a problem parsing the package
 
-Check whether you tried to open an `.apk` directly. The AK firmware disables
-that installation route. Download the `.xapk` release and install it through
-Open APP Service as described above.
+Check whether you tried to open an `.apk` directly on the Astell&Kern firmware.
+That firmware disables the installation route. Download the `.xapk` release and
+install it through Open APP Service as described above. On full Android
+firmware, the `.apk` installs normally from a file explorer.
 
 ### Last.fm authentication fails
 
@@ -240,9 +268,9 @@ signing key later breaks updates for everyone who already installed the app.
 
 
 The build does not use Gradle or Android Studio. Its scripts invoke `aapt2`,
-`javac`, `d8`, `zipalign`, and `apksigner` directly, and the app has no `res/`
-directory. APKs are signed with v1 and v2 signatures only because the AK firmware
-does not accept v3 signatures.
+`javac`, `d8`, `zipalign`, and `apksigner` directly, and the launcher icon
+resources in `scrobbler/res` are compiled with `aapt2`. APKs are signed with v1 and v2 signatures only because
+the AK firmware does not accept v3 signatures.
 
 To embed API credentials in a local build, copy `build/secrets.env.example` to
 `build/secrets.env` and fill in the values. Release builds deliberately bypass
@@ -282,11 +310,14 @@ restrictions.
 
 ## Other Astell&Kern models
 
-AKScrobble targets devices where root is neither available nor required. If you
-own an SP3000 or SP4000 series player, there is a better option: obtain ADB
-access with [PPPPatrick0's Astell&Kern DAP Root Guide](https://github.com/PPPPatrick0/AstellKern-DAP-Root-Guide) and install
-[Pano Scrobbler](https://github.com/kawaiiDango/pano-scrobbler), which is a far
-more capable scrobbler than this one.
+AKScrobble has been verified on the SP2000T and the SP3000 series. Its
+behavior is the same on both. The SP4000 series has not been tested.
+
+If you want a more capable scrobbler and are willing to obtain ADB access, see
+[PPPPatrick0's Astell&Kern DAP Root Guide](https://github.com/PPPPatrick0/AstellKern-DAP-Root-Guide) and
+[Pano Scrobbler](https://github.com/kawaiiDango/pano-scrobbler). Keep in mind
+that Pano Scrobbler cannot read AK Music's album information; see [Why use it
+on an SP3000](#why-use-it-on-an-sp3000).
 
 ## Special thanks
 
