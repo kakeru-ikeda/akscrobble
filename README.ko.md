@@ -9,8 +9,8 @@
 ## 소개
 
 AKScrobble은 Astell&Kern 디지털 오디오 플레이어용 Last.fm 스크로블러입니다.
-Android 9을 실행하는 A&ultima SP2000T에서 테스트했으며, 다른 Astell&Kern 모델은
-테스트하지 않았습니다.
+Android 9을 실행하는 A&ultima SP2000T와 SP3000 시리즈에서 작동을 확인했으며,
+다른 Astell&Kern 모델은 테스트하지 않았습니다.
 
 **root 권한이 필요하지 않습니다.** 설치부터 스크로블까지 모두 순정 기기에서
 동작합니다. 배터리 최적화 명령 하나를 위해 ADB를 활성화해야 하지만, 그것도 앱
@@ -24,6 +24,13 @@ Android 9을 실행하는 A&ultima SP2000T에서 테스트했으며, 다른 Aste
 | ![메인 화면](docs/images/main.png) | ![문자열 정리 설정](docs/images/sanitize.png) | ![ADB 활성화](docs/images/adb.png) |
 
 스크린샷은 SP2000T에서 표시 언어를 영어로 설정한 화면입니다.
+
+### SP3000에서 사용하는 이점
+
+AK Music은 공개하는 메타데이터에 앨범 이름을 넣지 않으므로, 그 메타데이터만 읽는
+스크로블러(Pano Scrobbler 등)는 앨범 정보를 가져올 수 없습니다. AKScrobble은 앨범
+이름을 MediaStore에서 조회하므로 AK Music 재생 기록을 올바른 앨범 이름으로
+Last.fm에 보낼 수 있습니다.
 
 ## 지원 플레이어
 
@@ -49,6 +56,22 @@ Amazon Music (`com.amazon.mp3`)은 `onGetRoot` 메서드가 `null`을 반환하�
 또는 MTP 저장소를 통해 수행합니다.
 
 ## 설치 (처음부터 스크로블링까지)
+
+설치할 파일은 플레이어의 펌웨어에 따라 다릅니다.
+
+- Astell&Kern 펌웨어: 아래 1~4단계대로 OpenService에서 `.xapk`를 설치합니다.
+- 풀 Android 펌웨어(SP3000 시리즈): 플레이어의 아무 파일 탐색기 앱으로 `.apk`를
+  설치합니다. `.xapk`가 아니라 일반 `.apk`라는 점에 주의하세요.
+
+풀 Android 펌웨어라면 1~4단계를 다음 내용으로 바꾸고 5단계부터 이어서 진행하세요.
+그 이후 절차는 같습니다.
+
+1. [GitHub Releases](https://github.com/kakeru-ikeda/akscrobble/releases)에서
+   `akscrobble-<version>.apk`를 플레이어에 다운로드하거나 MTP로 복사합니다.
+2. 플레이어에서 파일 탐색기 앱을 열고 `.apk`를 탭하여 설치합니다. Android가
+   요청하면 해당 파일 탐색기의 앱 설치를 허용하세요.
+
+Astell&Kern 펌웨어라면 아래 단계를 모두 따르세요.
 
 1. [GitHub Releases](https://github.com/kakeru-ikeda/akscrobble/releases)에서
    `akscrobble-<version>.xapk`를 다운로드합니다.
@@ -100,8 +123,10 @@ Amazon Music (`com.amazon.mp3`)은 `onGetRoot` 메서드가 `null`을 반환하�
     adb shell dumpsys deviceidle whitelist +fm.last.android
     ```
 
-플레이어에서 `.apk`를 직접 열지 마세요. Astell&Kern은 해당 설치 경로를 비활성화하므로
-항상 패키지 구문 분석 오류가 발생합니다. 위의 Open APP Service `.xapk` 절차를 사용하세요.
+Astell&Kern 펌웨어에서는 플레이어에서 `.apk`를 직접 열지 마세요. 해당 설치 경로가
+비활성화되어 있어 항상 패키지 구문 분석 오류가 발생합니다. 위의 Open APP Service
+`.xapk` 절차를 사용하세요. 이는 Astell&Kern 펌웨어에만 해당하며 풀 Android
+펌웨어에는 적용되지 않습니다.
 
 ## 문자열 정리 규칙
 
@@ -169,8 +194,10 @@ OpenService를 다시 여세요.
 
 ### 패키지를 파싱하는 중 문제가 발생했다는 메시지가 표시됨
 
-`.apk`를 직접 열려고 했는지 확인하세요. AK 펌웨어는 해당 설치 경로를 비활성화합니다.
-릴리스의 `.xapk`를 다운로드하고 위에서 설명한 대로 OpenService를 통해 설치하세요.
+Astell&Kern 펌웨어에서 `.apk`를 직접 열려고 했는지 확인하세요. 이 펌웨어는 해당
+설치 경로를 비활성화합니다. 릴리스의 `.xapk`를 다운로드하고 위에서 설명한 대로
+OpenService를 통해 설치하세요. 풀 Android 펌웨어에서는 `.apk`를 파일 탐색기에서
+정상적으로 설치할 수 있습니다.
 
 ### Last.fm 인증 실패
 
@@ -224,7 +251,8 @@ export AKS_KS_PASS='<릴리스 키스토어 비밀번호>'
 
 
 빌드에는 Gradle이나 Android Studio를 사용하지 않습니다. 스크립트가 `aapt2`, `javac`, `d8`,
-`zipalign`, `apksigner`를 직접 호출하며 앱에는 `res/` 디렉터리가 없습니다. AK 펌웨어는
+`zipalign`, `apksigner`를 직접 호출하며 런처 아이콘 리소스(`scrobbler/res`)는
+`aapt2`로 컴파일합니다. AK 펌웨어는
 v3 서명을 허용하지 않으므로 APK는 v1과 v2 서명만 사용합니다.
 
 로컬 빌드에 API 자격 증명을 포함하려면 `build/secrets.env.example`을
@@ -262,11 +290,14 @@ AKScrobble은 MIT License로 배포됩니다. Last.fm과 제휴하거나 Last.fm
 
 ## 다른 Astell&Kern 모델
 
-AKScrobble은 root를 쓸 수 없거나 필요로 하지 않는 기기를 대상으로 합니다.
-SP3000 또는 SP4000 시리즈를 사용한다면 더 나은 선택지가 있습니다.
-[PPPPatrick0의 Astell&Kern DAP Root Guide](https://github.com/PPPPatrick0/AstellKern-DAP-Root-Guide)로 ADB 접근을 확보한 뒤
-[Pano Scrobbler](https://github.com/kawaiiDango/pano-scrobbler)를 설치하세요.
-이 앱보다 훨씬 기능이 많습니다.
+AKScrobble은 SP2000T와 SP3000 시리즈에서 작동을 확인했으며 두 기기에서 동작은
+같습니다. SP4000 시리즈는 테스트하지 않았습니다.
+
+더 많은 기능의 스크로블러가 필요하고 ADB 접근을 확보할 의향이 있다면
+[PPPPatrick0의 Astell&Kern DAP Root Guide](https://github.com/PPPPatrick0/AstellKern-DAP-Root-Guide)와
+[Pano Scrobbler](https://github.com/kawaiiDango/pano-scrobbler)를 참조하세요. 다만
+Pano Scrobbler는 AK Music의 앨범 정보를 가져올 수 없습니다. 자세한 내용은
+[SP3000에서 사용하는 이점](#sp3000에서-사용하는-이점)을 참조하세요.
 
 ## 특별히 감사드립니다
 
