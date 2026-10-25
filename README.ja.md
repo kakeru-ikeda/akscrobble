@@ -1,5 +1,7 @@
 [English](README.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
+<p align="center"><img src="docs/images/icon.png" alt="AKScrobble icon" width="128"></p>
+
 # AKScrobble
 
 ## このアプリについて

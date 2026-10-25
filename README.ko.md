@@ -1,5 +1,7 @@
 [English](README.md) | [日本語](README.ja.md) | [한국어](README.ko.md)
 
+<p align="center"><img src="docs/images/icon.png" alt="AKScrobble icon" width="128"></p>
+
 # AKScrobble
 
 > 이 한국어 번역은 기계 번역 수준이며 아직 검토되지 않았습니다. 수정 Pull Request를 환영합니다.
