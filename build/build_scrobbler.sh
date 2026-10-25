@@ -39,9 +39,13 @@ if [ ! -f "$KEYSTORE" ]; then
     echo "created keystore: $KEYSTORE"
 fi
 
+mkdir -p "$TMP/res-compiled"
+"$AAPT2" compile --dir "$APP/res" -o "$TMP/res-compiled"
+
 "$AAPT2" link \
     -o "$TMP/base.apk" \
     -I "$ANDROID_JAR" \
+    "$TMP"/res-compiled/*.flat \
     --manifest "$APP/AndroidManifest.xml" \
     --rename-manifest-package "$PKG" \
     --min-sdk-version 21 \
