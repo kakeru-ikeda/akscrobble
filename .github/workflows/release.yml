@@ -1,0 +1,193 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to build and publish (for example v1.0.2)
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - id: release
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build:
+    needs: release-please
+    if: ${{ !cancelled() && (needs.release-please.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+      version_code: ${{ steps.verify.outputs.version_code }}
+    steps:
+      - name: Set release metadata
+        id: meta
+        env:
+          RELEASE_TAG: ${{ needs.release-please.outputs.tag_name }}
+          DISPATCH_TAG: ${{ inputs.tag }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then TAG="$DISPATCH_TAG"; else TAG="$RELEASE_TAG"; fi
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "invalid release tag: expected vMAJOR.MINOR.PATCH" >&2
+            exit 1
+          fi
+          VN="${TAG#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "vn=$VN" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.meta.outputs.tag }}
+          path: .
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: .ci
+          sparse-checkout: build
+          sparse-checkout-cone-mode: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: actions/cache@v4
+        with:
+          path: tools/android-sdk
+          key: android-sdk-${{ runner.os }}-${{ hashFiles('tools/fetch_sdk.sh', 'tools/env.sh') }}
+
+      - name: Fetch Android SDK
+        run: ./tools/fetch_sdk.sh
+
+      - name: Check for existing release asset
+        id: assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          VN: ${{ steps.meta.outputs.vn }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/release
+          ASSET="akscrobble-$VN.apk"
+          ASSETS="$(gh release view "$TAG" --json assets -q '.assets[].name')"
+          if [ "$EVENT_NAME" = workflow_dispatch ] && printf '%s\n' "$ASSETS" | grep -Fxq "$ASSET"; then
+            echo "skip_build=true" >> "$GITHUB_OUTPUT"
+            gh release download "$TAG" --pattern "$ASSET" --dir artifacts/release
+          else
+            echo "skip_build=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fetch release signing key
+        if: steps.assets.outputs.skip_build != 'true'
+        id: key
+        uses: tsuki-neko-com/workflows/actions/nyanstall-key@v1
+        with:
+          app: akscrobble
+          purpose: android-release
+          out-dir: ${{ runner.temp }}/akscrobble-release-key
+          api-token: ${{ secrets.NYANSTALL_CF_API_TOKEN }}
+          account-id: ${{ secrets.NYANSTALL_CF_ACCOUNT_ID }}
+          age-identity: ${{ secrets.NYANSTALL_AGE_IDENTITY }}
+
+      - name: Build signed artifacts
+        if: steps.assets.outputs.skip_build != 'true'
+        env:
+          KEY_DIR: ${{ steps.key.outputs.dir }}
+          VN: ${{ steps.meta.outputs.vn }}
+        run: |
+          set -euo pipefail
+          VC="$(bash .ci/build/ci_version_code.sh "$VN")"
+          export AKS_KEYSTORE="$KEY_DIR/release.keystore"
+          set -a
+          . "$KEY_DIR/signing.env"
+          set +a
+          ./build/make_release.sh "$VC" "$VN"
+
+      - name: Verify release signature and version
+        id: verify
+        env:
+          VN: ${{ steps.meta.outputs.vn }}
+          SKIP_BUILD: ${{ steps.assets.outputs.skip_build }}
+        run: |
+          set -euo pipefail
+          source tools/env.sh
+          APK="artifacts/release/akscrobble-$VN.apk"
+          CERT="$("$APKSIGNER" verify --print-certs "$APK" | sed -n 's/^Signer #1 certificate SHA-256 digest: //p')"
+          EXPECTED="$(tr -d '\r\n' < .ci/build/release-cert.sha256)"
+          if [ "$CERT" != "$EXPECTED" ]; then
+            echo "APK signing certificate does not match the pinned release certificate" >&2
+            exit 1
+          fi
+          VERSION_CODE="$("$AAPT2" dump badging "$APK" | sed -n "s/^package:.* versionCode='\([0-9][0-9]*\)'.*/\1/p")"
+          if [ -z "$VERSION_CODE" ]; then
+            echo "could not read APK versionCode" >&2
+            exit 1
+          fi
+          if [ "$SKIP_BUILD" != true ]; then
+            EXPECTED_CODE="$(bash .ci/build/ci_version_code.sh "$VN")"
+            if [ "$VERSION_CODE" != "$EXPECTED_CODE" ]; then
+              echo "APK versionCode does not match calculated versionCode" >&2
+              exit 1
+            fi
+          fi
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+
+      - name: Upload release assets
+        if: steps.assets.outputs.skip_build != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          VN: ${{ steps.meta.outputs.vn }}
+        run: gh release upload "$TAG" "artifacts/release/akscrobble-$VN.apk" "artifacts/release/akscrobble-$VN.xapk" --clobber
+
+      - name: Remove signing key
+        if: always()
+        env:
+          KEY_DIR: ${{ steps.key.outputs.dir }}
+        run: |
+          if [ -n "${KEY_DIR:-}" ]; then rm -rf "$KEY_DIR"; fi
+
+  publish:
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
+    permissions:
+      contents: read
+    uses: tsuki-neko-com/workflows/.github/workflows/nyanstall-publish.yml@v1
+    with:
+      app: akscrobble
+      tag: ${{ needs.build.outputs.tag }}
+      mode: android
+      asset-pattern: '*.apk'
+      version-code: ${{ needs.build.outputs.version_code }}
+    secrets:
+      NYANSTALL_CF_API_TOKEN: ${{ secrets.NYANSTALL_CF_API_TOKEN }}
+      NYANSTALL_CF_ACCOUNT_ID: ${{ secrets.NYANSTALL_CF_ACCOUNT_ID }}
+      NYANSTALL_ACCESS_CLIENT_ID: ${{ secrets.NYANSTALL_ACCESS_CLIENT_ID }}
+      NYANSTALL_ACCESS_CLIENT_SECRET: ${{ secrets.NYANSTALL_ACCESS_CLIENT_SECRET }}
