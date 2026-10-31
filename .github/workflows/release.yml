@@ -69,7 +69,9 @@ jobs:
         with:
           ref: ${{ github.sha }}
           path: .ci
-          sparse-checkout: build
+          sparse-checkout: |
+            build
+            tools
           sparse-checkout-cone-mode: true
 
       - uses: actions/setup-java@v4
@@ -83,7 +85,9 @@ jobs:
           key: android-sdk-${{ runner.os }}-${{ hashFiles('tools/fetch_sdk.sh', 'tools/env.sh') }}
 
       - name: Fetch Android SDK
-        run: ./tools/fetch_sdk.sh
+        run: |
+          cp .ci/tools/fetch_sdk.sh tools/fetch_sdk.sh
+          ./tools/fetch_sdk.sh
 
       - name: Check for existing release asset
         id: assets
