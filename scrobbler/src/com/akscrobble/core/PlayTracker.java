@@ -42,6 +42,9 @@ public final class PlayTracker {
                         Const.RESTART_POSITION_MS, thresholdMs())) {
             TrackInfo repeated = current;
             finish(elapsedMs);
+            // 直前が BUFFERING/PAUSED でも再生中として再開する。
+            // start() は lastState で再生中かどうかを判断する。
+            lastState = state;
             start(repeated, wallMs, elapsedMs);
         } else if (playing && playingSinceElapsed < 0L) {
             playingSinceElapsed = elapsedMs;
