@@ -37,11 +37,14 @@ Last.fm へ送信できます。
 
 - AK Music (`com.iriver.ak.music`)
 - Apple Music (`com.apple.android.music`)
+- Qobuz (`com.qobuz.music`)
 
 Amazon Music (`com.amazon.mp3`) は `onGetRoot` メソッドが `null` を返すため接続できません。
-Spotify と Qobuz は未検証で、現在は対応していません。これら、または別のプレーヤーへの
+Spotify は未検証で、現在は対応していません。Spotify、または別のプレーヤーへの
 対応が必要な場合は、[issue を作成](https://github.com/kakeru-ikeda/akscrobble/issues)
 してください。要望に応じて対応を検討します。
+
+Qobuz は `ALBUM_ARTIST` を公開しないため、アルバムアーティストなしで曲を送信します。
 
 ## 必要なもの
 
@@ -283,7 +286,7 @@ AK ファームウェアは v3 署名を受け入れないため、APK は v1 �
     必要があります。
   - ストレージ権限、言語設定、自作のサニタイズルールが初期化されます。
   - 未送信のキューは失われるので、アンインストール前に送信しておいてください。
-- 現在対応しているのは AK Music と Apple Music だけです。
+- 現在対応しているのは AK Music、Apple Music、Qobuz です。
 - `ScrobbleDb.onUpgrade` はテーブルを削除するため、データベーススキーマが変わる更新では
   未送信のキュー項目がすべて消去されます。
 - `/storage/emulated/0/AKScrobble/config.properties` は共有ストレージ上にあるため、

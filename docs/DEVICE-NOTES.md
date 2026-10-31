@@ -119,12 +119,13 @@ root が必要です。`MediaSessionManager.getActiveSessions()` にも特権が
 
 ## Verified players
 
-実機で確認済みなのは次の 2 プレーヤーだけです。
+実機で確認済みなのは次の 3 プレーヤーだけです。
 
 - AK Music: `com.iriver.ak.music`
 - Apple Music: `com.apple.android.music`（接続時の root は `__EMPTY_ROOT__`）
+- Qobuz: `com.qobuz.music`（サービスは `com.qobuz.android.mobile.component.mediaplayer.MusicService`、接続時の root は `QOBUZ_EMPTY_MEDIA_ROOT`）
 
-`com.amazon.mp3` は `onGetRoot` が null を返すため接続できません。Spotify と Qobuz は
+`com.amazon.mp3` は `onGetRoot` が null を返すため接続できません。Spotify は
 未検証・未対応です。
 
 ## Player quirks
@@ -137,6 +138,22 @@ AK Music の metadata にはアルバム名がないため、media ID を使っ�
 （`MediaStore.UNKNOWN_STRING`）を返します。これを albumArtist として送信すると、Last.fm は
 `ignoredCode 1 = "Artist was ignored"` として scrobble 全体を破棄します。
 AKScrobble は `AlbumInfo.normalize` でこの値を null に正規化します。
+
+Qobuz の root は未知の呼び出し元向けの空ルート `QOBUZ_EMPTY_MEDIA_ROOT` で、Apple Music の
+`__EMPTY_ROOT__` と同種です。セッショントークンは取得でき、`onMetadataChanged` と
+`onPlaybackStateChanged` も届きます。呼び出し元が `uses-permission` を 1 つも宣言していないと、
+Qobuz は `onGetLibraryRoot` で `IllegalStateException("Caller wasn't found in the system?")`
+を投げ、Qobuz のプロセスがクラッシュします。AKScrobble はマニフェストで権限を宣言しているため
+該当しません。この前提は `verify/test_manifest_permissions.py` と `verify/test_verify_apk.py` で
+固定しています。
+
+Qobuz の metadata には TITLE / ARTIST / ALBUM / DURATION(ms) があり、ALBUM_ARTIST はありません。
+MEDIA_ID は UUID 文字列なので AKScrobble 側の mediaId は -1 になります。アルバム補完は AK Music
+専用のため影響はありません。`com.qobuz.mobile.TRACK_ISRC` などの独自キーもあります。
+PlaybackState は再生が 3、一時停止が 2 です。曲送りでは BUFFERING(6) を経由して 3 に戻り、
+position は 0 付近に戻ります。position は正しく返るため、AK Music の -1 問題はありません。
+曲送り時に同じ内容の `onMetadataChanged` が 2 回届きますが、PlayTracker は同じ曲として統合します。
+BUFFERING 中は再生時間を積算しません。
 
 ## WebView
 

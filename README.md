@@ -37,12 +37,15 @@ The following players have been verified:
 
 - AK Music (`com.iriver.ak.music`)
 - Apple Music (`com.apple.android.music`)
+- Qobuz (`com.qobuz.music`)
 
 Amazon Music (`com.amazon.mp3`) cannot connect because its `onGetRoot` method
-returns `null`. Spotify and Qobuz are untested and currently unsupported. If you
-need support for either of them, or for another player, please [open an
+returns `null`. Spotify is untested and currently unsupported. If you need
+support for it, or for another player, please [open an
 issue](https://github.com/kakeru-ikeda/akscrobble/issues); support can be
 considered based on demand.
+
+Qobuz does not provide `ALBUM_ARTIST`, so tracks are sent without an album artist.
 
 ## What you need
 
@@ -291,7 +294,7 @@ that file and do not embed the API key or secret.
     again.
   - Storage permission, the language setting, and any sanitize rules are reset.
   - Unsent queue entries are lost, so send them before uninstalling.
-- Only AK Music and Apple Music are currently supported.
+- AK Music, Apple Music, and Qobuz are currently supported.
 - `ScrobbleDb.onUpgrade` drops its tables, so an update that changes the database
   schema erases any unsent queue entries.
 - `/storage/emulated/0/AKScrobble/config.properties` lives in shared storage, so

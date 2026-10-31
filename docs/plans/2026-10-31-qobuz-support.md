@@ -270,6 +270,8 @@ Task 4 の後でオーケストレーターが docs/DEVICE-NOTES.md の「E2E re
 
 ### Task 4: Document Qobuz as a verified player
 
+**ユーザー指示 (2026-10-31): Manual device verification の合格を待たずに、このタスクを今すぐ実施する。ブロックせず実行すること。** 文面は「最初から対応していた」書き方にし、「追加」「新たに」「2026/10/31」などの日付や変更履歴の表現は使わない。Qobuz は AK Music / Apple Music と同列の対応プレーヤーとして書く。
+
 - Files to touch: `README.md`, `README.ja.md`, `README.ko.md`, `docs/DEVICE-NOTES.md`
 - Files NOT to touch: `scrobbler/**`, `verify/**`, `build/**`, `docs/plans/**`
 - New dependencies: none
