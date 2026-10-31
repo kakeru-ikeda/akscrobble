@@ -168,6 +168,14 @@ Last.fm のログインページは正常に描画でき、端末上で認証操
 - `track.scrobble`: `accepted=4`
 - オフライン蓄積からネットワーク復帰後の自動送信: 7 秒
 - 端末再起動後の自動復帰: PASS
+- Qobuz（SP3000、v1.0.2、リリース鍵で上書きインストール）:
+  - 上書きインストール後も doze ホワイトリスト、Last.fm 認証、ストレージ権限は維持されました。
+  - Qobuz が停止していても接続時にプロセスが起動します（Apple Music などと同じ挙動）。
+  - `track.updateNowPlaying`: PASS、`track.scrobble`: `accepted=1`。
+  - 一時停止と再開、曲送り（二重送信なし）: PASS。
+  - Qobuz を強制終了したあと、AKScrobble を再起動せずに `suspended`、`connecting`、`connected` と戻り、
+    再生を再開できました。
+  - 全項目を通して Qobuz のクラッシュはありません。
 
 ## SP3000 シリーズ
 
