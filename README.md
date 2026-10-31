@@ -247,33 +247,37 @@ and surrounding state when reporting the problem.
 
 ## Building from source
 
-```sh
-./tools/fetch_sdk.sh                                   # installs Android SDK under tools/android-sdk/
-./build/build_scrobbler.sh fm.last.android 1 out.apk   # base APK
-./build/make_release.sh 1 0.1.0                        # apk + xapk under artifacts/release/
-./verify/run_all.sh                                    # unit tests + APK/XAPK constraint checks
-```
+Normal releases use release-please. Conventional Commits such as `feat:` and
+`fix:` on `main` update a release PR. Merge that PR to build and sign the APK
+and XAPK, verify the signing certificate, attach both assets to the GitHub
+Release, and register the APK with nyanstall. Promote a release to `stable`
+manually in the nyanstall admin UI.
 
-Release artifacts must be signed with an explicitly provided key. The dev
-keystore that `tools/env.sh` falls back to has its password committed to this
-repository, so it must never sign anything you distribute. Create the release
-key once, keep it forever, and set both variables when building:
+The version code is calculated as `MAJOR*1000000 + MINOR*1000 + PATCH` by
+`build/ci_version_code.sh`. For example, version `1.0.2` has version code
+`1000002`.
+
+For an emergency local release, install the Android SDK and run the existing
+release script. Release artifacts must be signed with an explicitly provided
+key. The dev keystore that `tools/env.sh` falls back to has its password
+committed to this repository, so it must never sign anything you distribute.
+Keep the release key and use it for every release:
 
 ```sh
+./tools/fetch_sdk.sh
 export AKS_KEYSTORE=/secure/path/akscrobble-release.keystore
 export AKS_KS_PASS='<your release keystore password>'
-./build/make_release.sh 20 1.0.0
+./build/make_release.sh 1000002 1.0.2
+./verify/run_all.sh
 ```
 
 `make_release.sh` refuses to run if either variable is unset, and prints the
 `keytool` command to create the keystore if it does not exist yet. Changing the
 signing key later breaks updates for everyone who already installed the app.
-
-
 The build does not use Gradle or Android Studio. Its scripts invoke `aapt2`,
 `javac`, `d8`, `zipalign`, and `apksigner` directly, and the launcher icon
-resources in `scrobbler/res` are compiled with `aapt2`. APKs are signed with v1 and v2 signatures only because
-the AK firmware does not accept v3 signatures.
+resources in `scrobbler/res` are compiled with `aapt2`. APKs are signed with v1
+and v2 signatures only because the AK firmware does not accept v3 signatures.
 
 To embed API credentials in a local build, copy `build/secrets.env.example` to
 `build/secrets.env` and fill in the values. Release builds deliberately bypass

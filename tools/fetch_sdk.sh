@@ -25,10 +25,10 @@ mkdir -p "$SDK_TMP"
 curl -fsSL "$CMDLINE_TOOLS_URL" -o "$ARCHIVE"
 unzip -q "$ARCHIVE" -d "$SDK_TMP"
 
-yes | "$SDK_TMP/cmdline-tools/bin/sdkmanager" \
+"$SDK_TMP/cmdline-tools/bin/sdkmanager" \
     --sdk_root="$SDK_ROOT" \
     "build-tools;34.0.0" \
-    "platforms;android-28"
+    "platforms;android-28" < <(yes)
 
 rm -rf "$SDK_TMP"
 rm -f "$ARCHIVE"

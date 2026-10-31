@@ -7,3 +7,4 @@ build/secrets.env
 artifacts/
 __pycache__/
 .pytest_cache/
+.sdd/
