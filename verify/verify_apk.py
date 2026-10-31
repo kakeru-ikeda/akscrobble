@@ -55,6 +55,7 @@ def inspect(path: str) -> dict:
             hashlib.sha256(c.dump()).hexdigest() for c in apk.get_certificates()
         ],
         "requires_split": _requires_split(apk, root),
+        "permissions": sorted(apk.get_permissions()),
     }
 
 

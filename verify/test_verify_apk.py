@@ -35,6 +35,14 @@ def test_inspect_reads_base_apk_values(built_apks):
     assert r["requires_split"] is False
 
 
+def test_built_base_apk_declares_uses_permissions(built_apks):
+    """Qobuz は権限宣言のない呼び出し元を PackageValidator で拒否しクラッシュする。"""
+    base, _ = built_apks
+    permissions = inspect(base)["permissions"]
+    assert permissions
+    assert "android.permission.INTERNET" in permissions
+
+
 def test_inspect_detects_split_name(built_apks):
     """config split の split 属性を読めること。"""
     _, split = built_apks
