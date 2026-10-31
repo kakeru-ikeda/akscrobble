@@ -11,9 +11,13 @@ public final class Const {
     public static final String PKG_AKMUSIC = "com.iriver.ak.music";
     public static final String SVC_AKMUSIC =
             "com.iriver.ak.music.player.service.MediaPlaybackService";
+    public static final String PKG_QOBUZ = "com.qobuz.music";
+    public static final String SVC_QOBUZ =
+            "com.qobuz." + "android" + ".mobile.component.mediaplayer.MusicService";
     public static final String[][] TARGETS = {
         {PKG_APPLE, SVC_APPLE},
-        {PKG_AKMUSIC, SVC_AKMUSIC}
+        {PKG_AKMUSIC, SVC_AKMUSIC},
+        {PKG_QOBUZ, SVC_QOBUZ}
     };
 
     public static final String CONFIG_DIR = "AKScrobble";

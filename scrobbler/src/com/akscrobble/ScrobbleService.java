@@ -238,6 +238,7 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
     private static String statusKey(String pkg) {
         if (Const.PKG_APPLE.equals(pkg)) return "apple";
         if (Const.PKG_AKMUSIC.equals(pkg)) return "akmusic";
+        if (Const.PKG_QOBUZ.equals(pkg)) return "qobuz";
         return pkg;
     }
 }
