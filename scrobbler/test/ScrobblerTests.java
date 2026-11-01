@@ -34,6 +34,7 @@ public final class ScrobblerTests {
         BackoffTests.run();
         ConfigTests.run();
         SourcesTests.run();
+        LaunchRouteTests.run();
         UpdateManifestTests.run();
         UpdateDecisionTests.run();
         Sha256SinkTests.run();
