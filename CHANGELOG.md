@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/kakeru-ikeda/akscrobble/compare/v1.1.1...v1.1.2) (2026-11-01)
+
+
+### Bug Fixes
+
+* **update:** resume the update after the install permission screen ([#12](https://github.com/kakeru-ikeda/akscrobble/issues/12)) ([b08dbad](https://github.com/kakeru-ikeda/akscrobble/commit/b08dbad7c43a94ad029e067e222a6f7ba37e586f))
+
 ## [1.1.1](https://github.com/kakeru-ikeda/akscrobble/compare/v1.1.0...v1.1.1) (2026-11-01)
 
 
