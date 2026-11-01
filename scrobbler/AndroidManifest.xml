@@ -27,6 +27,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name="com.akscrobble.SetupActivity"
+            android:exported="false"
+            android:label="Setup" />
+        <activity
             android:name="com.akscrobble.AuthActivity"
             android:exported="false"
             android:label="Last.fm Authentication" />

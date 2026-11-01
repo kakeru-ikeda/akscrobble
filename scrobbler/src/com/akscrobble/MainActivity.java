@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import com.akscrobble.core.Const;
+import com.akscrobble.core.LaunchRoute;
 import com.akscrobble.core.Strings;
 import com.akscrobble.core.update.UpdateDecision;
 import com.akscrobble.core.update.UpdateManifest;
@@ -33,6 +34,11 @@ public final class MainActivity extends Activity {
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         installCrashHandler();
+        if (LaunchRoute.decide(ConfigStore.credentials(this)) == LaunchRoute.SETUP) {
+            startActivity(new Intent(this, SetupActivity.class));
+            finish();
+            return;
+        }
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(12, 12, 12, 12);
