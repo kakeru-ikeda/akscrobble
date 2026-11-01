@@ -116,7 +116,7 @@ public final class MainActivity extends Activity {
         requestStorage();
         UpdateChecker.check(this, new UpdateChecker.Callback() {
             @Override public void onResult(UpdateDecision decision, final UpdateManifest manifest) {
-                if (isFinishing()) return;
+                if (isFinishing() || isDestroyed()) return;
                 boolean required = decision == UpdateDecision.REQUIRED;
                 AlertDialog.Builder prompt = new AlertDialog.Builder(MainActivity.this)
                         .setTitle(Ui.s(MainActivity.this, required
