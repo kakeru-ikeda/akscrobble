@@ -29,7 +29,15 @@ public final class UpdateChecker {
             if (checked) return;
             checked = true;
         }
-        final Context app = context.getApplicationContext();
+        fetch(context.getApplicationContext(), callback, false);
+    }
+
+    public static void checkManually(Context context, Callback callback) {
+        fetch(context.getApplicationContext(), callback, true);
+    }
+
+    private static void fetch(final Context app, final Callback callback,
+            final boolean reportAll) {
         NetThread.post(new Runnable() {
             @Override public void run() {
                 HttpURLConnection connection = null;
@@ -54,17 +62,26 @@ public final class UpdateChecker {
                     final UpdateDecision decision = UpdateDecision.decide(installed, manifest, ALLOWED_URL_PREFIX);
                     if (decision == UpdateDecision.REJECTED) {
                         Log.w(Const.TAG, "Rejected update manifest URL");
+                        if (reportAll) postResult(callback, null, null);
                         return;
                     }
-                    if (decision == UpdateDecision.NONE) return;
-                    MAIN.post(new Runnable() {
-                        @Override public void run() { callback.onResult(decision, manifest); }
-                    });
+                    if (decision == UpdateDecision.NONE && !reportAll) return;
+                    postResult(callback, decision, manifest);
                 } catch (Exception error) {
                     Log.w(Const.TAG, "Update check failed", error);
+                    if (reportAll) postResult(callback, null, null);
                 } finally {
                     if (connection != null) connection.disconnect();
                 }
+            }
+        });
+    }
+
+    private static void postResult(final Callback callback, final UpdateDecision decision,
+            final UpdateManifest manifest) {
+        MAIN.post(new Runnable() {
+            @Override public void run() {
+                if (callback != null) callback.onResult(decision, manifest);
             }
         });
     }

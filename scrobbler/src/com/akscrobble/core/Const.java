@@ -27,6 +27,7 @@ public final class Const {
     public static final String ACTION_START = "com.akscrobble.action.START";
     public static final String ACTION_STOP = "com.akscrobble.action.STOP";
     public static final String ACTION_FLUSH = "com.akscrobble.action.FLUSH";
+    public static final String ACTION_SOURCES = "com.akscrobble.action.SOURCES";
 
     public static final long SCROBBLE_MIN_DURATION_MS = 30000L;
     public static final long SCROBBLE_CAP_MS = 240000L;

@@ -1,17 +1,15 @@
 package com.akscrobble;
 
 import android.app.Activity;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.akscrobble.core.SanitizeConfig;
@@ -42,27 +40,29 @@ public final class SanitizeActivity extends Activity {
         // manifest の android:label は固定文字列なので、表示名はここで言語に合わせる。
         setTitle(Ui.s(this, Strings.SAN_TITLE));
         final SanitizeConfig config = SanitizeStore.load(this);
-        LinearLayout content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(12, 12, 12, 12);
+        Ui.Screen screen = Ui.screen(this, Ui.s(this, Strings.SAN_TITLE),
+                Ui.backLink(this), true);
 
-        CheckBox enabled = new CheckBox(this);
-        enabled.setText(Ui.s(this, Strings.SAN_ENABLED));
-        enabled.setChecked(config.enabled);
-        enabled.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                SanitizeStore.save(SanitizeActivity.this,
-                        config.withEnabled(((CheckBox) view).isChecked()));
+        LinearLayout enabledList = Ui.list(this);
+        final Switch enabled = Ui.toggle(this, config.enabled);
+        Ui.addRow(enabledList, Ui.row(this, Ui.s(this, Strings.SAN_ENABLED), null,
+                null, enabled, null).view);
+        enabled.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener() {
+            @Override public void onCheckedChanged(android.widget.CompoundButton button,
+                    boolean checked) {
+                SanitizeStore.save(SanitizeActivity.this, config.withEnabled(checked));
                 recreate();
             }
         });
-        content.addView(enabled);
+        screen.body.addView(enabledList);
 
-        addHeading(content, Strings.SAN_DEFAULT_RULES);
+        screen.body.addView(Ui.section(this, Ui.s(this, Strings.SAN_DEFAULT_RULES)));
+        LinearLayout defaultRules = Ui.list(this);
         for (final SanitizeRule rule : Sanitizer.DEFAULT_RULES) {
-            CheckBox box = new CheckBox(this);
-            box.setText(rule.id + "\n" + Ui.s(this, noteKey(rule.id)));
-            box.setChecked(!config.disabledIds.contains(rule.id));
+            final CheckBox box = Ui.checkBox(this,
+                    rule.id + "\n" + Ui.s(this, noteKey(rule.id)),
+                    !config.disabledIds.contains(rule.id));
+            box.setTextColor(Ui.FG);
             box.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View view) {
                     Set<String> disabled = new HashSet<String>(config.disabledIds);
@@ -72,17 +72,19 @@ public final class SanitizeActivity extends Activity {
                     recreate();
                 }
             });
-            content.addView(box);
+            Ui.addRow(defaultRules, box);
         }
+        screen.body.addView(defaultRules);
 
-        addHeading(content, Strings.SAN_CUSTOM_RULES);
-        for (final SanitizeRule rule : config.customRules) addCustomRow(content, config, rule);
-        addForm(content, config);
-        addPreview(content, config);
+        screen.body.addView(Ui.section(this, Ui.s(this, Strings.SAN_CUSTOM_RULES)));
+        LinearLayout customRules = Ui.list(this);
+        for (final SanitizeRule rule : config.customRules) {
+            addCustomRow(customRules, config, rule);
+        }
+        screen.body.addView(customRules);
+        addForm(screen.body, config);
+        addPreview(screen.body, config);
 
-        ScrollView scroll = new ScrollView(this);
-        scroll.addView(content);
-        setContentView(scroll);
     }
 
     private void addCustomRow(LinearLayout parent, final SanitizeConfig config,
@@ -107,11 +109,15 @@ public final class SanitizeActivity extends Activity {
         });
         row.addView(enabled, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        Button edit = button(Ui.s(this, Strings.SAN_EDIT), new View.OnClickListener() {
+        android.widget.Button edit = Ui.button(this, Ui.s(this, Strings.SAN_EDIT), false,
+                new View.OnClickListener() {
             @Override public void onClick(View view) { edit(rule); }
         });
+        edit.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         row.addView(edit);
-        Button delete = button(Ui.s(this, Strings.SAN_DELETE), new View.OnClickListener() {
+        android.widget.Button delete = Ui.button(this, Ui.s(this, Strings.SAN_DELETE), false,
+                new View.OnClickListener() {
             @Override public void onClick(View view) {
                 List<SanitizeRule> rules = new ArrayList<SanitizeRule>(config.customRules);
                 removeRule(rules, rule.id);
@@ -122,18 +128,25 @@ public final class SanitizeActivity extends Activity {
                 recreate();
             }
         });
+        delete.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         row.addView(delete);
-        parent.addView(row);
+        Ui.addRow(parent, row);
     }
 
     private void addForm(LinearLayout parent, final SanitizeConfig config) {
-        addHeading(parent, Strings.SAN_FORM);
-        idInput = editText(Strings.SAN_ID); parent.addView(idInput);
+        parent.addView(Ui.section(this, Ui.s(this, Strings.SAN_FORM)));
+        idInput = Ui.input(this, Ui.s(this, Strings.SAN_ID), "", false);
+        parent.addView(idInput);
         scopeInput = scopeSpinner(); parent.addView(scopeInput);
-        regexInput = editText(Strings.SAN_REGEX); parent.addView(regexInput);
-        replacementInput = editText(Strings.SAN_REPLACEMENT); parent.addView(replacementInput);
-        formError = new TextView(this); parent.addView(formError);
-        parent.addView(button(Ui.s(this, Strings.SAN_SAVE), new View.OnClickListener() {
+        regexInput = Ui.input(this, Ui.s(this, Strings.SAN_REGEX), "", true);
+        parent.addView(regexInput);
+        replacementInput = Ui.input(this, Ui.s(this, Strings.SAN_REPLACEMENT), "", false);
+        parent.addView(replacementInput);
+        scopeInput.setBackground(Ui.rounded(this, Ui.SURFACE, 8));
+        formError = Ui.text(this, "", 12, Ui.ACCENT); parent.addView(formError);
+        parent.addView(Ui.button(this, Ui.s(this, Strings.SAN_SAVE), true,
+                new View.OnClickListener() {
             @Override public void onClick(View view) {
                 SanitizeConfig changed = configWithForm(config, true);
                 if (changed == null) return;
@@ -144,12 +157,14 @@ public final class SanitizeActivity extends Activity {
     }
 
     private void addPreview(LinearLayout parent, final SanitizeConfig config) {
-        addHeading(parent, Strings.SAN_PREVIEW);
-        previewInput = editText(Strings.SAN_PREVIEW_INPUT); parent.addView(previewInput);
+        parent.addView(Ui.section(this, Ui.s(this, Strings.SAN_PREVIEW)));
+        previewInput = Ui.input(this, Ui.s(this, Strings.SAN_PREVIEW_INPUT), "", false);
+        parent.addView(previewInput);
         previewScope = scopeSpinner(); parent.addView(previewScope);
-        previewResult = new TextView(this);
-        previewResult.setTypeface(Typeface.MONOSPACE);
-        parent.addView(button(Ui.s(this, Strings.SAN_PREVIEW), new View.OnClickListener() {
+        previewScope.setBackground(Ui.rounded(this, Ui.SURFACE, 8));
+        previewResult = Ui.mono(this, "");
+        parent.addView(Ui.button(this, Ui.s(this, Strings.SAN_PREVIEW), false,
+                new View.OnClickListener() {
             @Override public void onClick(View view) {
                 SanitizeConfig temporary = configWithForm(config, false);
                 if (temporary == null) temporary = config;
@@ -228,28 +243,6 @@ public final class SanitizeActivity extends Activity {
 
     private static SanitizeRule.Scope selectedScope(Spinner spinner) {
         return SanitizeRule.Scope.values()[spinner.getSelectedItemPosition()];
-    }
-
-    private EditText editText(String hintKey) {
-        EditText edit = new EditText(this);
-        edit.setHint(Ui.s(this, hintKey));
-        edit.setSingleLine(true);
-        return edit;
-    }
-
-    private void addHeading(LinearLayout parent, String key) {
-        TextView heading = new TextView(this);
-        heading.setText(Ui.s(this, key));
-        heading.setTypeface(Typeface.DEFAULT_BOLD);
-        parent.addView(heading);
-    }
-
-    private Button button(String label, View.OnClickListener listener) {
-        Button button = new Button(this);
-        button.setText(label);
-        button.setAllCaps(false);
-        button.setOnClickListener(listener);
-        return button;
     }
 
     private static void removeRule(List<SanitizeRule> rules, String id) {

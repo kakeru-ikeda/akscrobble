@@ -80,6 +80,8 @@ public final class ConfigStore {
         return new File(Environment.getExternalStorageDirectory(), "AKScrobble/config.properties");
     }
 
+    public File configFile() { return primary(); }
+
     private File secondary() {
         File directory = context.getExternalFilesDir(null);
         return directory == null ? null : new File(directory, "config.properties");

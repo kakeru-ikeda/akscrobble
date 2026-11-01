@@ -18,9 +18,9 @@ The app uses the package name `fm.last.android` to satisfy the device firmware's
 installation restrictions. See [Known limitations](#known-limitations) for the
 consequences.
 
-| Main screen | Sanitize settings | Enable ADB |
+| Home screen | API key settings | Enable ADB |
 |---|---|---|
-| ![Main screen](docs/images/main.png) | ![Sanitize settings](docs/images/sanitize.png) | ![Enable ADB](docs/images/adb.png) |
+| ![Home screen](docs/images/main.png) | ![Title cleanup settings](docs/images/sanitize.png) | ![Enable ADB](docs/images/adb.png) |
 
 Screenshots are from an SP2000T with the interface set to English.
 
@@ -89,44 +89,38 @@ For the Astell&Kern firmware, follow all of the steps below.
 4. On the player, open Open APP Service and install AKScrobble from the list.
    Open APP Service installs at most four applications; if the device has already
    reached that limit, uninstall one before installing AKScrobble.
-5. Launch AKScrobble and choose a language with the buttons at the top.
+5. Launch AKScrobble. Setup opens automatically when API keys are not configured.
 6. Grant storage permission. AKScrobble needs it to retrieve AK Music album
    names from MediaStore.
-7. Create a Last.fm API account and give AKScrobble the credentials. There are
-   two ways to do it; the configuration file is far easier, because typing a
-   32-character key on the player's on-screen keyboard is painful.
-
-   **Recommended: the configuration file.** Launching the app once creates
-   `AKScrobble/config.properties` in the player's internal storage. Open it over
-   MTP and fill in the two values:
+7. Create a Last.fm API account and give AKScrobble the credentials. On first
+   launch, the Setup screen opens. Choose **Use a file**, then create or edit
+   `/sdcard/AKScrobble/config.properties` over MTP and fill in the two values:
 
    ```properties
    api_key=your_api_key_here
    api_secret=your_api_secret_here
    ```
 
-   Then tap **Load configuration file** on the main screen. Leave `session_key`
-   empty; the app obtains and stores it during authentication. Values in this
-   file take precedence over anything entered in the app.
+   Leave `session_key` empty; the app obtains and stores it during
+   authentication. Tap **Load file** to continue to Last.fm authentication.
+   Values in this file take precedence over anything entered in the app.
 
-   Confirm it worked by reading the status area at the bottom of the main
-   screen. `api_key source:` should read `config`, and after step 8 `auth:`
-   should show your Last.fm user name. If `api_key source:` still says `unset`,
-   the file was not picked up: check the path and spelling, then tap **Load
-   configuration file** again.
-
-   **Alternative: type them in the app.** Open **API key**, paste both values,
-   and save. Each field shows where its value is currently resolved from, so you
-   can confirm the app is using what you expect.
+   To enter credentials on the player instead, choose **Type in app**, paste
+   both values, and tap **Save and authorize**. The app proceeds to Last.fm
+   authentication when the keys are ready. Later, open **Last.fm authentication**
+   from Settings to authenticate again. For troubleshooting, open **Detailed
+   status** in Settings to see the current status snapshot.
 
    ![API key screen](docs/images/credentials.png)
 
-8. Tap **Last.fm authentication**, approve access in the WebView, and let the app
-   obtain a session.
-9. Tap **Start service**.
+8. Approve access on Last.fm when the authentication screen opens. After
+   authorization, the app opens Home.
+9. Turn on **Scrobbling** on Home. AK Music, Apple Music, and Qobuz each have an
+   individual switch and status. Status shows whether a source is Stopped, Not installed, Disabled, Connected,
+   Connecting, or Not connected (will retry). Sources are enabled by default.
 10. Exempt AKScrobble from battery optimization. This is the only step that
-    requires a computer: open **Enable ADB** in the app, then tap the highlighted
-    `DebugSettingActivity` button to enable ADB. On the computer, confirm that
+    requires a computer: open **Enable ADB** in the Home screen's Device section, then tap the highlighted `DebugSettingActivity`
+    button to enable ADB. On the computer, confirm that
     the player appears in `adb devices`, then run:
 
     ```sh
@@ -164,7 +158,7 @@ Last.fm. The built-in rules are:
 | `collapse-spaces` | ALL | ON | Collapse repeated spaces or tabs into one space. |
 | `trim-ends` | ALL | ON | Remove leading and trailing whitespace. |
 
-Open **Sanitize settings** to enable or disable the built-in rules. To add a custom
+Open **Title cleanup (sanitize)** in Settings to enable or disable the built-in rules. To add a custom
 rule, provide a unique ID, choose its scope (`ALL`, `TRACK`, `ARTIST`, `ALBUM`,
 or `ALBUM_ARTIST`), enter a regular expression and replacement string, then
 save it. Use the preview fields to try sample metadata and inspect each change
@@ -225,7 +219,7 @@ firmware, the `.apk` installs normally from a file explorer.
 
 ### Last.fm authentication fails
 
-Open **API key** and check the source line shown for each field. Credentials are
+Open **Last.fm API key** in Settings and check the source line shown for each field. Credentials are
 resolved field by field in this order: `config`, `prefs`, then `builtin`. A
 non-empty `api_key` or `api_secret` in
 `/storage/emulated/0/AKScrobble/config.properties` overrides a value entered in
@@ -241,14 +235,14 @@ player, network connection, and battery-optimization exemption. Tracks under 30
 seconds are intentionally skipped. If the current track never appears, confirm
 that you are using a supported player and restart the service.
 
-For a fuller snapshot, tap **Save diagnostic dump**. AKScrobble writes
+For a fuller snapshot, open Settings and tap **Save diagnostic dump**. AKScrobble writes
 `/storage/emulated/0/AKScrobble/diag-*.txt` containing `STATUS`, `PREFS`, `QUEUE`,
 and `DEVICE` sections. The `session_key` and `api_secret` values in `PREFS` are
 masked as `***`; review the file before attaching it to an issue.
 
 ### Queue entries become dead
 
-Open **View queue** and inspect the recorded error. A `dead` entry was permanently
+Open the Scrobble queue row on Home (or **Scrobble queue** in Settings) and inspect the recorded error. A `dead` entry was permanently
 rejected rather than delayed by a temporary network failure. Correct invalid
 credentials or metadata as indicated by the error, then retry or delete the dead
 entries from the queue screen. A diagnostic dump can provide the queue counts

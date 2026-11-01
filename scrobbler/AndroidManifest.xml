@@ -15,7 +15,8 @@
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
-        android:label="AKScrobble">
+        android:label="AKScrobble"
+        android:theme="@style/AKS.Theme">
         <activity
             android:name="com.akscrobble.MainActivity"
             android:exported="true"
@@ -25,6 +26,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.akscrobble.SetupActivity"
+            android:exported="false"
+            android:label="Setup" />
+        <activity
+            android:name="com.akscrobble.SettingsActivity"
+            android:exported="false"
+            android:label="Settings" />
         <activity
             android:name="com.akscrobble.AuthActivity"
             android:exported="false"

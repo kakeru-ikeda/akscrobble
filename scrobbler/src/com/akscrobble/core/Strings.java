@@ -127,6 +127,70 @@ public final class Strings {
     public static final String UPDATE_NEEDS_PERMISSION = "update.needs_permission";
     public static final String UPDATE_FALLBACK_TITLE = "update.fallback_title";
     public static final String UPDATE_FALLBACK_MESSAGE = "update.fallback_message";
+    public static final String UI_BACK = "ui.back";
+    public static final String UI_SETTINGS = "ui.settings";
+    public static final String SETUP_TITLE = "setup.title";
+    public static final String SETUP_STEP_KEYS = "setup.step_keys";
+    public static final String SETUP_STEP_AUTH = "setup.step_auth";
+    public static final String SETUP_STEP_SOURCES = "setup.step_sources";
+    public static final String SETUP_HEADING_KEYS = "setup.heading_keys";
+    public static final String SETUP_HEADING_AUTH = "setup.heading_auth";
+    public static final String SETUP_AUTH_HELP = "setup.auth_help";
+    public static final String SETUP_GET_KEY_AT = "setup.get_key_at";
+    public static final String SETUP_TAB_INPUT = "setup.tab_input";
+    public static final String SETUP_TAB_FILE = "setup.tab_file";
+    public static final String SETUP_KEY_HINT = "setup.key_hint";
+    public static final String SETUP_SAVE_AND_AUTH = "setup.save_and_auth";
+    public static final String SETUP_FILE_HELP = "setup.file_help";
+    public static final String SETUP_FILE_NOTE = "setup.file_note";
+    public static final String SETUP_MAKE_TEMPLATE = "setup.make_template";
+    public static final String SETUP_LOAD_FILE = "setup.load_file";
+    public static final String SETUP_TEMPLATE_CREATED = "setup.template_created";
+    public static final String SETUP_TEMPLATE_EXISTS = "setup.template_exists";
+    public static final String SETUP_FILE_KEYS_MISSING = "setup.file_keys_missing";
+    public static final String SETUP_STORAGE_NEEDED = "setup.storage_needed";
+    public static final String SETUP_LATER = "setup.later";
+    public static final String SETUP_AFTER_KEYS = "setup.after_keys";
+    public static final String HOME_SCROBBLING = "home.scrobbling";
+    public static final String HOME_STOPPED = "home.stopped";
+    public static final String HOME_SENDING_AS = "home.sending_as";
+    public static final String HOME_NOW_PLAYING = "home.now_playing";
+    public static final String HOME_NOTHING_PLAYING = "home.nothing_playing";
+    public static final String HOME_SEC_SOURCES = "home.sec_sources";
+    public static final String HOME_SEC_QUEUE = "home.sec_queue";
+    public static final String HOME_SEC_DEVICE = "home.sec_device";
+    public static final String HOME_QUEUE_PENDING = "home.queue_pending";
+    public static final String HOME_QUEUE_DETAIL = "home.queue_detail";
+    public static final String HOME_NEVER_SENT = "home.never_sent";
+    public static final String HOME_ADB_SUB = "home.adb_sub";
+    public static final String HOME_BANNER_AUTH_INVALID = "home.banner_auth_invalid";
+    public static final String HOME_BANNER_NOT_AUTHED = "home.banner_not_authed";
+    public static final String SRC_CONNECTED = "src.connected";
+    public static final String SRC_CONNECTING = "src.connecting";
+    public static final String SRC_DISCONNECTED = "src.disconnected";
+    public static final String SRC_DISABLED = "src.disabled";
+    public static final String SRC_NOT_INSTALLED = "src.not_installed";
+    public static final String SRC_STOPPED = "src.stopped";
+    public static final String SET_SEC_ACCOUNT = "settings.sec_account";
+    public static final String SET_SEC_SCROBBLE = "settings.sec_scrobble";
+    public static final String SET_SEC_VERSION = "settings.sec_version";
+    public static final String SET_API_KEY = "settings.api_key";
+    public static final String SET_KEY_FROM = "settings.key_from";
+    public static final String SET_SOURCE_CONFIG = "settings.source_config";
+    public static final String SET_SOURCE_PREFS = "settings.source_prefs";
+    public static final String SET_SOURCE_BUILTIN = "settings.source_builtin";
+    public static final String SET_SOURCE_NONE = "settings.source_none";
+    public static final String SET_AUTHED = "settings.authed";
+    public static final String SET_AUTH_INVALID = "settings.auth_invalid";
+    public static final String SET_SANITIZE = "settings.sanitize";
+    public static final String SET_LANGUAGE = "settings.language";
+    public static final String SET_STORAGE = "settings.storage";
+    public static final String SET_GRANTED = "settings.granted";
+    public static final String SET_NOT_GRANTED = "settings.not_granted";
+    public static final String SET_STATUS = "settings.status";
+    public static final String SET_CHECK_UPDATE = "settings.check_update";
+    public static final String SET_UP_TO_DATE = "settings.up_to_date";
+    public static final String SET_UPDATE_FAILED = "settings.update_failed";
 
     private static final String[][] TABLE = {
         {NOTIF_TITLE, "AKScrobble", "AKScrobble", "AKScrobble"},
@@ -250,6 +314,70 @@ public final class Strings {
         {UPDATE_NEEDS_PERMISSION, "提供元不明のアプリのインストールを許可してから、もう一度更新してください。", "Allow installs from this source, then try the update again.", "이 출처의 앱 설치를 허용한 다음 업데이트를 다시 시도하세요."},
         {UPDATE_FALLBACK_TITLE, "手動で更新してください", "Update manually", "수동으로 업데이트하세요"},
         {UPDATE_FALLBACK_MESSAGE, "この機種では自動更新できません。xapk を Open APP Service で入れてください。\n{0}", "Automatic updates are not available on this device. Download the xapk from Releases and install it with Open APP Service.\n{0}", "이 기기에서는 자동 업데이트를 사용할 수 없습니다. Releases에서 xapk를 받아 Open APP Service로 설치하세요.\n{0}"},
+        {UI_BACK, "‹ 戻る", "‹ Back", "‹ 뒤로"},
+        {UI_SETTINGS, "設定", "Settings", "설정"},
+        {SETUP_TITLE, "セットアップ", "Setup", "초기 설정"},
+        {SETUP_STEP_KEYS, "1 Last.fm キー", "1 Last.fm key", "1 Last.fm 키"},
+        {SETUP_STEP_AUTH, "2 認証", "2 Authorize", "2 인증"},
+        {SETUP_STEP_SOURCES, "3 ソース", "3 Sources", "3 소스"},
+        {SETUP_HEADING_KEYS, "まず Last.fm の API キーを設定します", "First, set up your Last.fm API key", "먼저 Last.fm API 키를 설정합니다"},
+        {SETUP_HEADING_AUTH, "次に Last.fm で認証します", "Next, authorize AKScrobble on Last.fm", "다음으로 Last.fm에서 인증합니다"},
+        {SETUP_AUTH_HELP, "API キーを設定しました。Last.fm で AKScrobble を承認してください。", "Your API key is set. Approve AKScrobble on Last.fm.", "API 키를 설정했습니다. Last.fm에서 AKScrobble을 승인하세요."},
+        {SETUP_GET_KEY_AT, "取得先: {0}", "Get one at: {0}", "발급처: {0}"},
+        {SETUP_TAB_INPUT, "アプリで入力", "Type in app", "앱에서 입력"},
+        {SETUP_TAB_FILE, "ファイルを置く", "Use a file", "파일 배치"},
+        {SETUP_KEY_HINT, "32 桁の英数字", "32 letters and digits", "32자리 영숫자"},
+        {SETUP_SAVE_AND_AUTH, "保存して認証へ", "Save and authorize", "저장하고 인증"},
+        {SETUP_FILE_HELP, "本体の次の場所に config.properties を置いて、読み込みを押します。キーの入力は不要です。", "Put config.properties at the path below, then tap Load file. No typing needed.", "아래 위치에 config.properties를 두고 불러오기를 누르세요. 키를 입력할 필요가 없습니다."},
+        {SETUP_FILE_NOTE, "api_key / api_secret を書いたファイルです。無ければテンプレートを作れます。", "The file holds api_key / api_secret. You can create a template if it is missing.", "api_key / api_secret을 적은 파일입니다. 없으면 템플릿을 만들 수 있습니다."},
+        {SETUP_MAKE_TEMPLATE, "テンプレートを作る", "Create template", "템플릿 만들기"},
+        {SETUP_LOAD_FILE, "ファイルを読み込む", "Load file", "파일 불러오기"},
+        {SETUP_TEMPLATE_CREATED, "テンプレートを作成しました: {0}", "Template created: {0}", "템플릿을 만들었습니다: {0}"},
+        {SETUP_TEMPLATE_EXISTS, "ファイルは既にあります: {0}", "The file already exists: {0}", "파일이 이미 있습니다: {0}"},
+        {SETUP_FILE_KEYS_MISSING, "ファイルに api_key と api_secret が見つかりません。", "api_key and api_secret were not found in the file.", "파일에서 api_key와 api_secret을 찾을 수 없습니다."},
+        {SETUP_STORAGE_NEEDED, "ファイルを扱うにはストレージ権限が必要です。", "Storage permission is required to use the file.", "파일을 사용하려면 저장소 권한이 필요합니다."},
+        {SETUP_LATER, "あとで(ホームへ)", "Later (go to home)", "나중에 (홈으로)"},
+        {SETUP_AFTER_KEYS, "キー設定後", "After key setup", "키 설정 후"},
+        {HOME_SCROBBLING, "スクロブル中", "Scrobbling", "스크로블 중"},
+        {HOME_STOPPED, "停止中", "Stopped", "중지됨"},
+        {HOME_SENDING_AS, "{0} として送信", "Sending as {0}", "{0}(으)로 전송"},
+        {HOME_NOW_PLAYING, "再生中 · {0}", "Now playing · {0}", "재생 중 · {0}"},
+        {HOME_NOTHING_PLAYING, "再生中の曲はありません", "Nothing is playing", "재생 중인 곡이 없습니다"},
+        {HOME_SEC_SOURCES, "ソース", "Sources", "소스"},
+        {HOME_SEC_QUEUE, "送信キュー", "Scrobble queue", "전송 대기열"},
+        {HOME_SEC_DEVICE, "端末", "Device", "기기"},
+        {HOME_QUEUE_PENDING, "待機 {0} 件", "{0} pending", "대기 {0}건"},
+        {HOME_QUEUE_DETAIL, "dead {0} 件 · 最終送信 {1}", "{0} dead · last sent {1}", "dead {0}건 · 마지막 전송 {1}"},
+        {HOME_NEVER_SENT, "なし", "never", "없음"},
+        {HOME_ADB_SUB, "開発者向け設定を開く", "Open developer settings", "개발자 설정 열기"},
+        {HOME_BANNER_AUTH_INVALID, "Last.fm の認証が無効になりました。タップして再認証してください。", "Last.fm authorization is no longer valid. Tap to authorize again.", "Last.fm 인증이 더 이상 유효하지 않습니다. 눌러서 다시 인증하세요."},
+        {HOME_BANNER_NOT_AUTHED, "Last.fm の認証がまだです。タップして認証してください。", "Last.fm is not authorized yet. Tap to authorize.", "아직 Last.fm 인증을 하지 않았습니다. 눌러서 인증하세요."},
+        {SRC_CONNECTED, "接続中", "Connected", "연결됨"},
+        {SRC_CONNECTING, "接続しています", "Connecting", "연결하는 중"},
+        {SRC_DISCONNECTED, "未接続(再試行待ち)", "Not connected (will retry)", "연결 안 됨 (재시도 대기)"},
+        {SRC_DISABLED, "無効", "Disabled", "비활성"},
+        {SRC_NOT_INSTALLED, "未インストール", "Not installed", "설치되지 않음"},
+        {SRC_STOPPED, "停止中", "Stopped", "중지됨"},
+        {SET_SEC_ACCOUNT, "アカウント", "Account", "계정"},
+        {SET_SEC_SCROBBLE, "スクロブル", "Scrobbling", "스크로블"},
+        {SET_SEC_VERSION, "バージョン", "Version", "버전"},
+        {SET_API_KEY, "Last.fm API キー", "Last.fm API key", "Last.fm API 키"},
+        {SET_KEY_FROM, "{0} から取得", "From {0}", "{0}에서 가져옴"},
+        {SET_SOURCE_CONFIG, "設定ファイル", "the configuration file", "설정 파일"},
+        {SET_SOURCE_PREFS, "アプリ内の設定", "in-app settings", "앱 내 설정"},
+        {SET_SOURCE_BUILTIN, "組み込みのキー", "the built-in key", "내장 키"},
+        {SET_SOURCE_NONE, "未設定", "Not set", "설정 안 됨"},
+        {SET_AUTHED, "認証済み ({0})", "Authorized ({0})", "인증됨 ({0})"},
+        {SET_AUTH_INVALID, "再認証が必要です", "Authorization needed again", "다시 인증해야 합니다"},
+        {SET_SANITIZE, "タイトルの整形(サニタイズ)", "Title cleanup (sanitize)", "제목 정리 (문자열 정리)"},
+        {SET_LANGUAGE, "言語", "Language", "언어"},
+        {SET_STORAGE, "ストレージ権限", "Storage permission", "저장소 권한"},
+        {SET_GRANTED, "許可済み", "Granted", "허용됨"},
+        {SET_NOT_GRANTED, "未許可(タップで要求)", "Not granted (tap to request)", "허용 안 됨 (눌러서 요청)"},
+        {SET_STATUS, "詳細ステータス", "Detailed status", "상세 상태"},
+        {SET_CHECK_UPDATE, "アップデートを確認", "Check for updates", "업데이트 확인"},
+        {SET_UP_TO_DATE, "最新版です。", "You have the latest version.", "최신 버전입니다."},
+        {SET_UPDATE_FAILED, "更新を確認できませんでした。", "Could not check for updates.", "업데이트를 확인할 수 없습니다."},
     };
 
     public static String get(Lang lang, String key, Object... args) {

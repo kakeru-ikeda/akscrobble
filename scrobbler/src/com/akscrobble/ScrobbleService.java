@@ -15,6 +15,7 @@ import com.akscrobble.core.AlbumInfo;
 import com.akscrobble.core.PendingScrobble;
 import com.akscrobble.core.PlayTracker;
 import com.akscrobble.core.Sanitizer;
+import com.akscrobble.core.Sources;
 import com.akscrobble.core.Strings;
 import com.akscrobble.core.TrackInfo;
 
@@ -23,11 +24,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Source toggles write Prefs.sourceEnabledKey before sending ACTION_SOURCES.
+ * The service applies the changed source without restarting. */
 public final class ScrobbleService extends Service implements PlayerLink.Listener {
     private static final long NOTIFICATION_INTERVAL_MS = 5000L;
 
     private final Handler handler = new Handler();
-    private final List<PlayerLink> playerLinks = new ArrayList<PlayerLink>();
+    private final Map<String, PlayerLink> playerLinks =
+            new LinkedHashMap<String, PlayerLink>();
     private final Map<String, PlayTracker> trackers =
             new LinkedHashMap<String, PlayTracker>();
     private volatile Sanitizer sanitizer;
@@ -46,7 +50,7 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
                 long uptime = Math.max(0L, now - StatusBus.serviceStartedElapsed);
                 StatusBus.put("service", "running");
                 StatusBus.put("uptime_ms", Long.toString(uptime));
-                for (PlayerLink link : playerLinks) {
+                for (PlayerLink link : playerLinks.values()) {
                     link.tick(now);
                 }
                 long wall = System.currentTimeMillis();
@@ -93,12 +97,7 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
         database = new ScrobbleDb(this);
         sender = new Sender(this, database, handler);
         lastPeriodicDrainElapsed = StatusBus.serviceStartedElapsed;
-        for (String[] target : Const.TARGETS) {
-            trackers.put(target[0], new PlayTracker(target[0], new TrackerSink()));
-            PlayerLink link = new PlayerLink(this, target[0], target[1], handler, this);
-            playerLinks.add(link);
-            link.start();
-        }
+        applySources();
         handler.post(supervisor);
     }
 
@@ -109,13 +108,15 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
             stopSelf();
         } else if (intent != null && Const.ACTION_FLUSH.equals(intent.getAction())) {
             sender.requestDrain("manual");
+        } else if (intent != null && Const.ACTION_SOURCES.equals(intent.getAction())) {
+            applySources();
         }
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
-        for (PlayerLink link : playerLinks) {
+        for (PlayerLink link : playerLinks.values()) {
             link.stop();
         }
         playerLinks.clear();
@@ -152,7 +153,7 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
     public void onState(String pkg, int state, long positionMs, float speed) {
         Log.i(Const.TAG, pkg + " playback state=" + state + " position=" + positionMs
                 + " speed=" + speed);
-        StatusBus.put("playback_" + statusKey(pkg), Integer.toString(state));
+        StatusBus.put("playback_" + Sources.statusKey(pkg), Integer.toString(state));
         PlayTracker tracker = trackers.get(pkg);
         if (tracker != null) {
             long elapsed = SystemClock.elapsedRealtime();
@@ -165,7 +166,7 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
     @Override
     public void onLinkState(String pkg, String state) {
         Log.i(Const.TAG, pkg + " link=" + state);
-        StatusBus.put("link_" + statusKey(pkg), state);
+        StatusBus.put("link_" + Sources.statusKey(pkg), state);
         if ("suspended".equals(state) || "failed".equals(state)) {
             PlayTracker tracker = trackers.get(pkg);
             if (tracker != null) {
@@ -186,7 +187,10 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
 
     private void publishTrackStatus(String pkg, TrackInfo raw) {
         TrackInfo sanitized = sanitizer.apply(raw);
-        String key = statusKey(pkg);
+        String key = Sources.statusKey(pkg);
+        StatusBus.put("np_title_" + key, sanitized.title == null ? "" : sanitized.title);
+        StatusBus.put("np_artist_" + key, sanitized.artist == null ? "" : sanitized.artist);
+        StatusBus.put("np_album_" + key, sanitized.album == null ? "" : sanitized.album);
         StatusBus.put("track_raw_" + key, describe(raw));
         StatusBus.put("track_sanitized_" + key, describe(sanitized));
         Log.i(Const.TAG, pkg + " raw: " + describe(raw));
@@ -194,7 +198,7 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
     }
 
     private void publishTrackerStatus(String pkg, PlayTracker tracker, long elapsed) {
-        StatusBus.put("progress_" + statusKey(pkg),
+        StatusBus.put("progress_" + Sources.statusKey(pkg),
                 tracker.accumulatedMs(elapsed) + "/" + tracker.thresholdMs());
     }
 
@@ -235,10 +239,39 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
         return value == null || value.trim().length() == 0;
     }
 
-    private static String statusKey(String pkg) {
-        if (Const.PKG_APPLE.equals(pkg)) return "apple";
-        if (Const.PKG_AKMUSIC.equals(pkg)) return "akmusic";
-        if (Const.PKG_QOBUZ.equals(pkg)) return "qobuz";
-        return pkg;
+    private void applySources() {
+        Prefs prefs = new Prefs(this);
+        Map<String, Boolean> enabled = new LinkedHashMap<String, Boolean>();
+        for (String[] target : Const.TARGETS) {
+            enabled.put(target[0], Boolean.valueOf(
+                    prefs.getBoolean(Prefs.sourceEnabledKey(target[0]))));
+        }
+        Sources.Plan plan = Sources.reconcile(
+                new ArrayList<String>(playerLinks.keySet()), enabled);
+        for (String pkg : plan.stop) {
+            PlayerLink link = playerLinks.remove(pkg);
+            if (link != null) link.stop();
+            PlayTracker tracker = trackers.remove(pkg);
+            if (tracker != null) {
+                tracker.onDisconnected(System.currentTimeMillis(),
+                        SystemClock.elapsedRealtime());
+            }
+            String key = Sources.statusKey(pkg);
+            StatusBus.put("link_" + key, "disabled");
+            StatusBus.remove("playback_" + key);
+            StatusBus.remove("progress_" + key);
+            StatusBus.remove("track_raw_" + key);
+            StatusBus.remove("track_sanitized_" + key);
+            StatusBus.remove("np_title_" + key);
+            StatusBus.remove("np_artist_" + key);
+            StatusBus.remove("np_album_" + key);
+            Log.i(Const.TAG, pkg + " source disabled");
+        }
+        for (String pkg : plan.start) {
+            trackers.put(pkg, new PlayTracker(pkg, new TrackerSink()));
+            PlayerLink link = new PlayerLink(this, pkg, Sources.serviceOf(pkg), handler, this);
+            playerLinks.put(pkg, link);
+            link.start();
+        }
     }
 }

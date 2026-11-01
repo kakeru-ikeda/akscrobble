@@ -4,15 +4,10 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import com.akscrobble.core.Const;
 import com.akscrobble.core.PendingScrobble;
@@ -30,45 +25,35 @@ public final class QueueActivity extends Activity {
         super.onCreate(state);
         // manifest の android:label は固定文字列なので、表示名はここで言語に合わせる。
         setTitle(Ui.s(this, Strings.QUEUE_TITLE));
-        LinearLayout content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(12, 12, 12, 12);
-        addButton(content, Ui.s(this, Strings.QUEUE_REFRESH), new View.OnClickListener() {
+        LinearLayout content = Ui.screen(this, Ui.s(this, Strings.QUEUE_TITLE),
+                Ui.backLink(this), true).body;
+        content.addView(Ui.button(this, Ui.s(this, Strings.QUEUE_REFRESH), false, new View.OnClickListener() {
             @Override public void onClick(View view) { refresh(); }
-        });
-        addButton(content, Ui.s(this, Strings.QUEUE_SEND_NOW), new View.OnClickListener() {
+        }));
+        content.addView(Ui.button(this, Ui.s(this, Strings.QUEUE_SEND_NOW), true, new View.OnClickListener() {
             @Override public void onClick(View view) {
                 startService(new Intent(QueueActivity.this, ScrobbleService.class)
                         .setAction(Const.ACTION_FLUSH));
             }
-        });
-        addButton(content, Ui.s(this, Strings.QUEUE_RETRY_DEAD), new View.OnClickListener() {
+        }));
+        content.addView(Ui.button(this, Ui.s(this, Strings.QUEUE_RETRY_DEAD), false, new View.OnClickListener() {
             @Override public void onClick(View view) {
                 confirm(Ui.s(QueueActivity.this, Strings.QUEUE_CONFIRM_RETRY_DEAD), new Runnable() {
                     @Override public void run() { changeDead(true); }
                 });
             }
-        });
-        addButton(content, Ui.s(this, Strings.QUEUE_DELETE_DEAD), new View.OnClickListener() {
+        }));
+        content.addView(Ui.button(this, Ui.s(this, Strings.QUEUE_DELETE_DEAD), false, new View.OnClickListener() {
             @Override public void onClick(View view) {
                 confirm(Ui.s(QueueActivity.this, Strings.QUEUE_CONFIRM_DELETE_DEAD), new Runnable() {
                     @Override public void run() { changeDead(false); }
                 });
             }
-        });
+        }));
 
-        queueText = new TextView(this);
-        queueText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f);
-        queueText.setTypeface(android.graphics.Typeface.MONOSPACE);
-        queueText.setTextColor(Color.WHITE);
-        queueText.setBackgroundColor(Color.BLACK);
-        queueText.setTextIsSelectable(true);
-        queueText.setPadding(8, 12, 8, 12);
+        queueText = Ui.mono(this, "");
         content.addView(queueText, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        ScrollView scroll = new ScrollView(this);
-        scroll.addView(content);
-        setContentView(scroll);
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
     }
 
     @Override protected void onResume() {
@@ -144,15 +129,6 @@ public final class QueueActivity extends Activity {
                 .setPositiveButton(Ui.s(this, Strings.QUEUE_EXECUTE), new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int which) { action.run(); }
                 }).show();
-    }
-
-    private Button addButton(LinearLayout parent, String label, View.OnClickListener listener) {
-        Button button = new Button(this);
-        button.setText(label);
-        button.setAllCaps(false);
-        button.setOnClickListener(listener);
-        parent.addView(button);
-        return button;
     }
 
     private static String nz(String value) { return value == null ? "" : value; }

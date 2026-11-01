@@ -32,6 +32,26 @@ public final class StatusBus {
         return text.toString();
     }
 
+    public static synchronized String get(String key) {
+        String value = VALUES.get(key);
+        return value == null ? "" : value;
+    }
+
+    public static synchronized Map<String, String> snapshot() {
+        return new LinkedHashMap<String, String>(VALUES);
+    }
+
+    public static void remove(String key) {
+        Runnable currentListener;
+        synchronized (StatusBus.class) {
+            VALUES.remove(key);
+            currentListener = listener;
+        }
+        if (currentListener != null) {
+            currentListener.run();
+        }
+    }
+
     public static synchronized void setListener(Runnable value) {
         listener = value;
     }
