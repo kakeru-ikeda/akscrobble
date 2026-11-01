@@ -28,3 +28,16 @@ def test_manifest_keeps_internet_permission():
     root = ET.parse(MANIFEST).getroot()
     names = {node.get(ANDROID_NS + "name") for node in root.findall("uses-permission")}
     assert "android.permission.INTERNET" in names
+
+
+def test_manifest_declares_install_packages_permission():
+    root = ET.parse(MANIFEST).getroot()
+    names = {node.get(ANDROID_NS + "name") for node in root.findall("uses-permission")}
+    assert "android.permission.REQUEST_INSTALL_PACKAGES" in names
+
+
+def test_manifest_declares_private_install_result_receiver():
+    root = ET.parse(MANIFEST).getroot()
+    receivers = root.findall("application/receiver")
+    assert any(node.get(ANDROID_NS + "name") == "com.akscrobble.update.InstallResultReceiver"
+               and node.get(ANDROID_NS + "exported") == "false" for node in receivers)
