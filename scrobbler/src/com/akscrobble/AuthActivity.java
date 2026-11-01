@@ -5,17 +5,14 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import com.akscrobble.core.Credentials;
 import com.akscrobble.core.LastfmResponse;
@@ -38,44 +35,43 @@ public final class AuthActivity extends Activity {
         super.onCreate(state);
         // manifest の android:label は固定文字列なので、表示名はここで言語に合わせる。
         setTitle(Ui.s(this, Strings.AUTH_TITLE));
-        LinearLayout root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(12, 12, 12, 12);
-
-        LinearLayout buttons = new LinearLayout(this);
-        buttons.setOrientation(LinearLayout.VERTICAL);
-        addButton(buttons, Ui.s(this, Strings.AUTH_OPEN_APPROVAL), new View.OnClickListener() {
-            @Override public void onClick(View view) { requestToken(true, false); }
-        });
-        addButton(buttons, Ui.s(this, Strings.AUTH_GET_SESSION), new View.OnClickListener() {
-            @Override public void onClick(View view) { requestSession(false); }
-        });
-        addButton(buttons, Ui.s(this, Strings.AUTH_SHOW_PC_URL), new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                if (approvalUrl == null) requestToken(false, true); else showApprovalUrl(true);
-            }
-        });
-        addButton(buttons, Ui.s(this, Strings.AUTH_IMPORT_CONFIG), new View.OnClickListener() {
-            @Override public void onClick(View view) { importConfig(); }
-        });
-        replaceUa = new CheckBox(this);
-        replaceUa.setText(Ui.s(this, Strings.AUTH_USE_NEW_UA));
+        Ui.Screen screen = Ui.screen(this, Ui.s(this, Strings.AUTH_TITLE),
+                Ui.backLink(this), false);
+        LinearLayout body = screen.body;
+        body.addView(Ui.button(this, Ui.s(this, Strings.AUTH_OPEN_APPROVAL), true,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) { requestToken(true, false); }
+                }));
+        body.addView(Ui.button(this, Ui.s(this, Strings.AUTH_GET_SESSION), false,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) { requestSession(false); }
+                }));
+        body.addView(Ui.button(this, Ui.s(this, Strings.AUTH_SHOW_PC_URL), false,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) {
+                        if (approvalUrl == null) requestToken(false, true);
+                        else showApprovalUrl(true);
+                    }
+                }));
+        body.addView(Ui.button(this, Ui.s(this, Strings.AUTH_IMPORT_CONFIG), false,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) { importConfig(); }
+                }));
+        replaceUa = Ui.checkBox(this, Ui.s(this, Strings.AUTH_USE_NEW_UA), false);
         replaceUa.setChecked(false);
         replaceUa.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) { applyUserAgent(); }
         });
-        buttons.addView(replaceUa);
-        root.addView(buttons);
+        body.addView(replaceUa);
 
-        status = new TextView(this);
+        status = Ui.text(this, "", 12, Ui.FG);
         status.setTextIsSelectable(true);
-        status.setTextColor(Color.WHITE);
-        status.setPadding(4, 10, 4, 10);
-        root.addView(status, new LinearLayout.LayoutParams(
+        body.addView(status, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 
         try {
             webView = new WebView(this);
+            webView.setBackgroundColor(Ui.BG);
             WebSettings settings = webView.getSettings();
             settings.setJavaScriptEnabled(true);
             settings.setDomStorageEnabled(true);
@@ -88,13 +84,12 @@ public final class AuthActivity extends Activity {
                     }
                 }
             });
-            root.addView(webView, new LinearLayout.LayoutParams(
+            body.addView(webView, new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         } catch (Throwable error) {
             webView = null;
             status.setText(Ui.s(this, Strings.AUTH_WEBVIEW_UNAVAILABLE));
         }
-        setContentView(root);
         new ConfigStore(this).writeTemplateIfAbsent();
     }
 
@@ -218,8 +213,4 @@ public final class AuthActivity extends Activity {
     }
     private static boolean blank(String value) { return clean(value).length() == 0; }
     private static String clean(String value) { return value == null ? "" : value.trim(); }
-    private static void addButton(LinearLayout parent, String label, View.OnClickListener listener) {
-        Button button = new Button(parent.getContext()); button.setText(label);
-        button.setOnClickListener(listener); parent.addView(button);
-    }
 }

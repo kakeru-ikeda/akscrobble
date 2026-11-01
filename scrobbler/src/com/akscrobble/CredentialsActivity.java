@@ -6,14 +6,13 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.akscrobble.core.Credentials;
 import com.akscrobble.core.Strings;
 
 public final class CredentialsActivity extends Activity {
@@ -28,31 +27,32 @@ public final class CredentialsActivity extends Activity {
         super.onCreate(state);
         setTitle(Ui.s(this, Strings.CRED_TITLE));
 
-        LinearLayout content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(12, 12, 12, 12);
+        Ui.Screen screen = Ui.screen(this, Ui.s(this, Strings.CRED_TITLE),
+                Ui.backLink(this), true);
+        LinearLayout content = screen.body;
 
-        TextView help = text(Ui.s(this, Strings.CRED_HELP) + "\n" + ACCOUNT_URL);
+        TextView help = Ui.text(this, Ui.s(this, Strings.CRED_HELP) + "\n" + ACCOUNT_URL,
+                12, Ui.MUTED);
         help.setTextIsSelectable(true);
         content.addView(help);
 
         Prefs prefs = new Prefs(this);
-        apiKey = input(Ui.s(this, Strings.CRED_API_KEY), prefs.getString(Prefs.API_KEY));
+        content.addView(Ui.text(this, Ui.s(this, Strings.CRED_API_KEY), 13, Ui.FG));
+        apiKey = Ui.input(this, "", prefs.getString(Prefs.API_KEY), true);
         content.addView(apiKey);
-        keySource = text("");
+        keySource = Ui.text(this, "", 11, Ui.MUTED);
         content.addView(keySource);
 
-        apiSecret = input(Ui.s(this, Strings.CRED_API_SECRET),
-                prefs.getString(Prefs.API_SECRET));
+        content.addView(Ui.text(this, Ui.s(this, Strings.CRED_API_SECRET), 13, Ui.FG));
+        apiSecret = Ui.input(this, "", prefs.getString(Prefs.API_SECRET), true);
         apiSecret.setInputType(InputType.TYPE_CLASS_TEXT
                 | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         apiSecret.setTransformationMethod(PasswordTransformationMethod.getInstance());
         content.addView(apiSecret);
-        secretSource = text("");
+        secretSource = Ui.text(this, "", 11, Ui.MUTED);
         content.addView(secretSource);
 
-        CheckBox showSecret = new CheckBox(this);
-        showSecret.setText(Ui.s(this, Strings.CRED_SHOW_SECRET));
+        CheckBox showSecret = Ui.checkBox(this, Ui.s(this, Strings.CRED_SHOW_SECRET), false);
         showSecret.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View view) {
                 int cursor = apiSecret.getSelectionStart();
@@ -63,27 +63,23 @@ public final class CredentialsActivity extends Activity {
         });
         content.addView(showSecret);
 
-        Button save = button(Ui.s(this, Strings.CRED_SAVE));
-        save.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) { save(); }
-        });
+        Button save = Ui.button(this, Ui.s(this, Strings.CRED_SAVE), true,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) { save(); }
+                });
         content.addView(save);
 
-        Button authenticate = button(Ui.s(this, Strings.CRED_AUTH));
-        authenticate.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) {
-                startActivity(new Intent(CredentialsActivity.this, AuthActivity.class));
-            }
-        });
+        Button authenticate = Ui.button(this, Ui.s(this, Strings.CRED_AUTH), false,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) {
+                        startActivity(new Intent(CredentialsActivity.this, AuthActivity.class));
+                    }
+                });
         content.addView(authenticate);
 
-        message = text("");
+        message = Ui.text(this, "", 12, Ui.FG);
         content.addView(message);
         updateSources();
-
-        ScrollView scroll = new ScrollView(this);
-        scroll.addView(content);
-        setContentView(scroll);
     }
 
     private void save() {
@@ -104,47 +100,10 @@ public final class CredentialsActivity extends Activity {
     }
 
     private void updateSources() {
+        Credentials credentials = ConfigStore.credentials(this);
         keySource.setText(Ui.s(this, Strings.CRED_SOURCE,
-                source("api_key", Prefs.API_KEY, "API_KEY")));
+                credentials.source("api_key")));
         secretSource.setText(Ui.s(this, Strings.CRED_SOURCE,
-                source("api_secret", Prefs.API_SECRET, "API_SECRET")));
-    }
-
-    private String source(String configName, String prefName, String builtinName) {
-        try {
-            String config = new ConfigStore(this).load().get(configName);
-            if (config != null && config.trim().length() > 0) return "config";
-        } catch (Throwable ignored) {}
-        if (new Prefs(this).getString(prefName).length() > 0) return "prefs";
-        try {
-            Object value = Class.forName("com.akscrobble.core.BuildSecrets")
-                    .getField(builtinName).get(null);
-            if (value instanceof String && ((String) value).length() > 0) return "builtin";
-        } catch (Throwable ignored) {}
-        return "unset";
-    }
-
-    private EditText input(String hint, String value) {
-        EditText view = new EditText(this);
-        view.setHint(hint);
-        view.setText(value);
-        view.setSingleLine(true);
-        return view;
-    }
-
-    private TextView text(String value) {
-        TextView view = new TextView(this);
-        view.setText(value);
-        view.setPadding(8, 8, 8, 8);
-        return view;
-    }
-
-    private Button button(String value) {
-        Button view = new Button(this);
-        view.setText(value);
-        view.setAllCaps(false);
-        view.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        return view;
+                credentials.source("api_secret")));
     }
 }
