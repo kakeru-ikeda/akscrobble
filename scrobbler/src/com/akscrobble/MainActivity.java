@@ -42,6 +42,9 @@ public final class MainActivity extends Activity {
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         content.setPadding(12, 12, 12, 12);
+        addButton(content, Ui.s(this, Strings.UI_SETTINGS), new View.OnClickListener() {
+            @Override public void onClick(View v) { open(SettingsActivity.class); }
+        });
         addLanguageButtons(content);
         addButton(content, Ui.s(this, Strings.MAIN_START), new View.OnClickListener() {
             @Override public void onClick(View v) { showNotice(AppActions.sendService(MainActivity.this, Const.ACTION_START)); }

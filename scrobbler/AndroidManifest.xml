@@ -31,6 +31,10 @@
             android:exported="false"
             android:label="Setup" />
         <activity
+            android:name="com.akscrobble.SettingsActivity"
+            android:exported="false"
+            android:label="Settings" />
+        <activity
             android:name="com.akscrobble.AuthActivity"
             android:exported="false"
             android:label="Last.fm Authentication" />
