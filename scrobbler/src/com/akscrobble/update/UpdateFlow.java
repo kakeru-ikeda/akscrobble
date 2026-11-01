@@ -17,7 +17,19 @@ public final class UpdateFlow {
     private static final String RELEASES_URL = "https://github.com/kakeru-ikeda/akscrobble/releases";
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
 
+    private static volatile UpdateManifest pending;
+
     private UpdateFlow() {}
+
+    /** 「不明なアプリのインストール」の許可画面から戻ったとき、止まっていた更新を続ける。 */
+    public static void resumeIfPermitted(Activity activity) {
+        UpdateManifest manifest = pending;
+        if (manifest == null) return;
+        if (android.os.Build.VERSION.SDK_INT >= 26
+                && !activity.getPackageManager().canRequestPackageInstalls()) return;
+        pending = null;
+        start(activity, manifest);
+    }
 
     public static void start(final Activity activity, final UpdateManifest manifest) {
         InstallOutcome.setListener(new InstallOutcome.Listener() {
@@ -36,8 +48,10 @@ public final class UpdateFlow {
                     File apk = ApkDownloader.download(activity, manifest);
                     ApkVerifier.verify(activity, apk, manifest.versionCode);
                     InstallOutcome outcome = SelfInstaller.install(activity, apk);
-                    if (outcome == InstallOutcome.NEEDS_PERMISSION)
+                    if (outcome == InstallOutcome.NEEDS_PERMISSION) {
+                        pending = manifest;
                         InstallOutcome.notify(InstallOutcome.NEEDS_PERMISSION, null);
+                    }
                 } catch (Exception error) {
                     MAIN.post(new Runnable() {
                         @Override public void run() { showFallback(activity); }
