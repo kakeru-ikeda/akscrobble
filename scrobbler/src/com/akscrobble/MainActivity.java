@@ -2,107 +2,165 @@ package com.akscrobble;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.res.ColorStateList;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 import com.akscrobble.core.Const;
 import com.akscrobble.core.LaunchRoute;
+import com.akscrobble.core.NowPlaying;
+import com.akscrobble.core.SourceStatus;
+import com.akscrobble.core.Sources;
 import com.akscrobble.core.Strings;
 import com.akscrobble.core.update.UpdateDecision;
 import com.akscrobble.core.update.UpdateManifest;
 import com.akscrobble.update.UpdateChecker;
 import com.akscrobble.update.UpdateFlow;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
 
 public final class MainActivity extends Activity {
     private static final int REQ_STORAGE = 1201;
     private final Handler handler = new Handler();
-    private TextView status;
-    private String notice = "";
+    private final String[] sourcePackages = Sources.displayOrder();
+    private final boolean[] installed = new boolean[sourcePackages.length];
+    private final TextView[] sourceSubtitles = new TextView[sourcePackages.length];
+    private final Switch[] sourceToggles = new Switch[sourcePackages.length];
+    private final String[] lastSourceStatus = new String[sourcePackages.length];
+    private TextView banner;
+    private TextView heroTitle;
+    private TextView heroSubtitle;
+    private TextView nowHeading;
+    private TextView nowTitle;
+    private TextView nowDetail;
+    private Switch serviceToggle;
+    private Ui.Row queueRow;
     private boolean refreshing;
+    private boolean changingServiceToggle;
+    private boolean changingSourceToggles;
+    private int tickCount;
+    private int pendingCount;
+    private int deadCount;
+    private Strings.Lang createdLanguage;
+    private String lastHeroSubtitle;
+    private String lastNowTitle;
+    private String lastNowDetail;
+    private String lastQueueTitle;
+    private String lastQueueStatus;
     private final Runnable refresh = new Runnable() {
-        @Override public void run() { updateStatus(); if (refreshing) handler.postDelayed(this, 1000L); }
+        @Override public void run() {
+            updateStatus(StatusBus.snapshot());
+            tickCount++;
+            if (tickCount % 5 == 0) refreshQueueCounts();
+            if (refreshing) handler.postDelayed(this, 1000L);
+        }
     };
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
+        createdLanguage = Ui.lang(this);
         installCrashHandler();
         if (LaunchRoute.decide(ConfigStore.credentials(this)) == LaunchRoute.SETUP) {
             startActivity(new Intent(this, SetupActivity.class));
             finish();
             return;
         }
-        LinearLayout content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setPadding(12, 12, 12, 12);
-        addButton(content, Ui.s(this, Strings.UI_SETTINGS), new View.OnClickListener() {
-            @Override public void onClick(View v) { open(SettingsActivity.class); }
+
+        Ui.Screen screen = Ui.screen(this, "AKScrobble", Ui.gear(this,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) { open(SettingsActivity.class); }
+                }), true);
+        banner = Ui.banner(this, "", new View.OnClickListener() {
+            @Override public void onClick(View view) { open(AuthActivity.class); }
         });
-        addLanguageButtons(content);
-        addButton(content, Ui.s(this, Strings.MAIN_START), new View.OnClickListener() {
-            @Override public void onClick(View v) { showNotice(AppActions.sendService(MainActivity.this, Const.ACTION_START)); }
+        banner.setVisibility(View.GONE);
+        screen.body.addView(banner);
+
+        LinearLayout hero = new LinearLayout(this);
+        hero.setOrientation(LinearLayout.VERTICAL);
+        hero.setPadding(Ui.dp(this, 14), Ui.dp(this, 14), Ui.dp(this, 14), Ui.dp(this, 14));
+        hero.setBackground(Ui.rounded(this, Ui.SURFACE, 12));
+        LinearLayout headline = new LinearLayout(this);
+        headline.setOrientation(LinearLayout.HORIZONTAL);
+        headline.setGravity(Gravity.CENTER_VERTICAL);
+        LinearLayout headlineText = new LinearLayout(this);
+        headlineText.setOrientation(LinearLayout.VERTICAL);
+        heroTitle = Ui.text(this, "", 16, Ui.FG);
+        heroTitle.setTypeface(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD);
+        headlineText.addView(heroTitle);
+        heroSubtitle = Ui.text(this, "", 12, Ui.MUTED);
+        headlineText.addView(heroSubtitle);
+        headline.addView(headlineText, new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1));
+        serviceToggle = Ui.toggle(this, false);
+        headline.addView(serviceToggle);
+        hero.addView(headline);
+        serviceToggle.setOnCheckedChangeListener(
+                new android.widget.CompoundButton.OnCheckedChangeListener() {
+                    @Override public void onCheckedChanged(android.widget.CompoundButton button,
+                            boolean checked) {
+                        if (changingServiceToggle) return;
+                        tintToggle(serviceToggle, checked);
+                        showToast(AppActions.sendService(MainActivity.this,
+                                checked ? Const.ACTION_START : Const.ACTION_STOP));
+                        updateStatus(StatusBus.snapshot());
+                    }
+                });
+
+        View heroDivider = new View(this);
+        heroDivider.setBackgroundColor(Ui.LINE);
+        LinearLayout.LayoutParams dividerParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, Math.max(1, Ui.dp(this, 1)));
+        dividerParams.topMargin = Ui.dp(this, 12);
+        dividerParams.bottomMargin = Ui.dp(this, 10);
+        hero.addView(heroDivider, dividerParams);
+        nowHeading = Ui.text(this, "", 11, Ui.MUTED);
+        hero.addView(nowHeading);
+        nowTitle = Ui.text(this, "", 14, Ui.FG);
+        nowTitle.setTypeface(android.graphics.Typeface.DEFAULT, android.graphics.Typeface.BOLD);
+        hero.addView(nowTitle);
+        nowDetail = Ui.text(this, "", 12, Ui.MUTED);
+        hero.addView(nowDetail);
+        screen.body.addView(hero);
+
+        screen.body.addView(Ui.section(this, Ui.s(this, Strings.HOME_SEC_SOURCES)));
+        LinearLayout sources = Ui.list(this);
+        for (int i = 0; i < sourcePackages.length; i++) addSourceRow(sources, i);
+        screen.body.addView(sources);
+
+        screen.body.addView(Ui.section(this, Ui.s(this, Strings.HOME_SEC_QUEUE)));
+        LinearLayout queue = Ui.list(this);
+        queueRow = Ui.row(this, "", " ", null, null, new View.OnClickListener() {
+            @Override public void onClick(View view) { open(QueueActivity.class); }
         });
-        addButton(content, Ui.s(this, Strings.MAIN_STOP), new View.OnClickListener() {
-            @Override public void onClick(View v) { showNotice(AppActions.sendService(MainActivity.this, Const.ACTION_STOP)); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_BTN_CREDENTIALS), new View.OnClickListener() {
-            @Override public void onClick(View v) { open(CredentialsActivity.class); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_AUTH), new View.OnClickListener() {
-            @Override public void onClick(View v) { open(AuthActivity.class); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_IMPORT_CONFIG), new View.OnClickListener() {
-            @Override public void onClick(View v) { showNotice(AppActions.importConfig(MainActivity.this)); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_QUEUE), new View.OnClickListener() {
-            @Override public void onClick(View v) { open(QueueActivity.class); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_FLUSH), new View.OnClickListener() {
-            @Override public void onClick(View v) { showNotice(AppActions.sendService(MainActivity.this, Const.ACTION_FLUSH)); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_REQUEST_STORAGE), new View.OnClickListener() {
-            @Override public void onClick(View v) { AppActions.requestStorage(MainActivity.this, REQ_STORAGE); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_BATTERY_EXEMPTION), new View.OnClickListener() {
-            @Override public void onClick(View v) { String message = AppActions.requestBatteryExemption(MainActivity.this);
-                if (message != null) showNotice(message); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_BTN_SANITIZE), new View.OnClickListener() {
-            @Override public void onClick(View v) { open(SanitizeActivity.class); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_BTN_ADB), new View.OnClickListener() {
-            @Override public void onClick(View v) { open(AdbActivity.class); }
-        });
-        addButton(content, Ui.s(this, Strings.MAIN_SAVE_DIAGNOSTIC), new View.OnClickListener() {
-            @Override public void onClick(View v) { showNotice(AppActions.saveDiagnosticDump(MainActivity.this)); }
-        });
-        TextView version = new TextView(this);
-        version.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
-        version.setPadding(8, 12, 8, 4);
-        try {
-            version.setText(Ui.s(this, Strings.MAIN_VERSION,
-                    getPackageManager().getPackageInfo(getPackageName(), 0).versionName));
-        } catch (Exception ignored) { }
-        content.addView(version);
-        status = new TextView(this);
-        status.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f);
-        status.setTypeface(android.graphics.Typeface.MONOSPACE);
-        status.setTextColor(Color.WHITE);
-        status.setBackgroundColor(Color.BLACK);
-        status.setTextIsSelectable(true);
-        status.setPadding(8, 12, 8, 12);
-        content.addView(status, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        ScrollView scroll = new ScrollView(this);
-        scroll.addView(content);
-        setContentView(scroll);
+        Ui.addRow(queue, queueRow.view);
+        Ui.addRow(queue, Ui.button(this, Ui.s(this, Strings.MAIN_FLUSH), false,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) {
+                        showToast(AppActions.sendService(MainActivity.this, Const.ACTION_FLUSH));
+                    }
+                }));
+        screen.body.addView(queue);
+
+        screen.body.addView(Ui.section(this, Ui.s(this, Strings.HOME_SEC_DEVICE)));
+        LinearLayout device = Ui.list(this);
+        Ui.addRow(device, Ui.row(this, Ui.s(this, Strings.MAIN_BTN_ADB),
+                Ui.s(this, Strings.HOME_ADB_SUB), null, null,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) { open(AdbActivity.class); }
+                }).view);
+        screen.body.addView(device);
+
         AppActions.requestStorage(this, REQ_STORAGE);
         UpdateChecker.check(this, new UpdateChecker.Callback() {
             @Override public void onResult(UpdateDecision decision, final UpdateManifest manifest) {
@@ -111,93 +169,229 @@ public final class MainActivity extends Activity {
         });
     }
 
+    private void addSourceRow(LinearLayout list, final int index) {
+        final String pkg = sourcePackages[index];
+        Switch toggle = Ui.toggle(this, new Prefs(this).getBoolean(Prefs.sourceEnabledKey(pkg)));
+        sourceToggles[index] = toggle;
+        Ui.Row row = Ui.row(this, Sources.label(pkg), " ", Ui.tag(this, Sources.tag(pkg),
+                Sources.tagColor(pkg)), toggle, null);
+        sourceSubtitles[index] = row.subtitle;
+        toggle.setOnCheckedChangeListener(
+                new android.widget.CompoundButton.OnCheckedChangeListener() {
+                    @Override public void onCheckedChanged(android.widget.CompoundButton button,
+                            boolean checked) {
+                        if (changingSourceToggles) return;
+                        tintToggle(sourceToggles[index], checked);
+                        AppActions.setSourceEnabled(MainActivity.this, pkg, checked);
+                        updateStatus(StatusBus.snapshot());
+                    }
+                });
+        Ui.addRow(list, row.view);
+    }
+
     @Override protected void onResume() {
-        super.onResume(); refreshing = true; handler.removeCallbacks(refresh); handler.post(refresh);
+        super.onResume();
+        if (createdLanguage != Ui.lang(this)) {
+            recreate();
+            return;
+        }
+        resolveInstalledSources();
+        refreshBanner(ConfigStore.credentials(this));
+        changingSourceToggles = true;
+        for (int i = 0; i < sourcePackages.length; i++) {
+            boolean enabled = new Prefs(this).getBoolean(Prefs.sourceEnabledKey(sourcePackages[i]));
+            sourceToggles[i].setChecked(enabled);
+            tintToggle(sourceToggles[i], enabled);
+        }
+        changingSourceToggles = false;
+        refreshQueueCounts();
+        refreshing = true;
+        tickCount = 0;
+        handler.removeCallbacks(refresh);
+        handler.post(refresh);
         UpdateFlow.resumeIfPermitted(this);
     }
+
     @Override protected void onPause() {
-        refreshing = false; handler.removeCallbacks(refresh); super.onPause();
+        refreshing = false;
+        handler.removeCallbacks(refresh);
+        super.onPause();
     }
+
     @Override public void onRequestPermissionsResult(int code, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(code, permissions, results);
-        if (code == REQ_STORAGE) showNotice(AppActions.storageResult(this));
+        if (code == REQ_STORAGE) showToast(AppActions.storageResult(this));
     }
 
     private void installCrashHandler() {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override public void uncaughtException(Thread thread, final Throwable error) {
+            @Override public void uncaughtException(Thread thread, Throwable error) {
                 Log.e(Const.TAG, "Uncaught exception on " + thread.getName(), error);
-                try { runOnUiThread(new Runnable() { @Override public void run() {
-                    if (status != null) status.setText("UNCAUGHT\n" + Log.getStackTraceString(error));
-                }}); } catch (Throwable ignored) {}
             }
         });
     }
 
     private void open(Class<?> activity) {
         try { startActivity(new Intent(this, activity)); }
-        catch (Throwable e) { showFailure(Strings.MAIN_OP_OPEN_SCREEN, e); }
-    }
-    private void updateStatus() {
-        if (status == null) return;
-        Prefs prefs = new Prefs(this);
-        com.akscrobble.core.SanitizeConfig sanitize = SanitizeStore.load(this);
-        ScrobbleDb db = new ScrobbleDb(this);
-        String counts;
-        try { counts = "pending=" + db.countPending() + " dead=" + db.countDead(); }
-        catch (Throwable e) { counts = "unavailable: " + e.getClass().getSimpleName(); }
-        finally { db.close(); }
-        String user = prefs.getString(Prefs.USER_NAME);
-        String snapshot = StatusBus.snapshotText();
-        if (snapshot.length() == 0) snapshot = "service: stopped/no status";
-        status.setText((notice.length() == 0 ? "" : notice + "\n\n") + snapshot
-                + "\nqueue: " + counts + "\nauth: "
-                + (user.length() == 0 ? Ui.s(this, Strings.MAIN_UNAUTHENTICATED) : user)
-                + "\napi_key source: " + AppActions.apiKeySource(this)
-                + "\nsanitize: " + (sanitize.enabled ? "on" : "off")
-                + " (custom=" + sanitize.customRules.size() + ")"
-                + "\nstorage: read=" + AppActions.hasReadStorage(this)
-                + " write=" + AppActions.hasWriteStorage(this)
-                + "\nbattery exemption: " + AppActions.isBatteryExempt(this));
-    }
-    private void showNotice(String message) { notice = message; updateStatus(); }
-    private void showFailure(String operationKey, Throwable error) {
-        String operation = Ui.s(this, operationKey);
-        Log.e(Const.TAG, operation + " failed", error);
-        showNotice(Ui.s(this, Strings.MAIN_FAILURE,
-                operation, error.getClass().getSimpleName()));
-    }
-    private void addLanguageButtons(LinearLayout parent) {
-        LinearLayout languages = new LinearLayout(this);
-        languages.setOrientation(LinearLayout.HORIZONTAL);
-        String selected = new Prefs(this).getString(Prefs.LANGUAGE);
-        addLanguageButton(languages, Strings.LANG_SYSTEM, "", selected);
-        addLanguageButton(languages, Strings.LANG_JAPANESE, "ja", selected);
-        addLanguageButton(languages, Strings.LANG_ENGLISH, "en", selected);
-        addLanguageButton(languages, Strings.LANG_KOREAN, "ko", selected);
-        parent.addView(languages, new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-    }
-    private void addLanguageButton(LinearLayout parent, String labelKey,
-            final String value, String selected) {
-        Button button = addButton(parent, Ui.s(this, labelKey),
-                new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        new Prefs(MainActivity.this).putString(Prefs.LANGUAGE, value);
-                        recreate();
-                    }
-                });
-        // 選択中の印は文字を増やさずに付ける。"* " のような接頭辞を足すと
-        // 日本語の「システム」が 2 行に折り返し、その行だけボタンが縦に伸びる（実機で確認）。
-        if (value.equals(selected)) {
-            button.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-            button.getPaint().setUnderlineText(true);
+        catch (Throwable error) {
+            Log.e(Const.TAG, "Unable to open screen", error);
+            showToast(Ui.s(this, Strings.MAIN_FAILURE, Ui.s(this, Strings.MAIN_OP_OPEN_SCREEN),
+                    error.getClass().getSimpleName()));
         }
-        button.setLayoutParams(new LinearLayout.LayoutParams(
-                0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
     }
-    private Button addButton(LinearLayout parent, String label, View.OnClickListener listener) {
-        Button button = new Button(this); button.setText(label); button.setAllCaps(false);
-        button.setOnClickListener(listener); parent.addView(button); return button;
+
+    private void refreshBanner(com.akscrobble.core.Credentials credentials) {
+        Prefs prefs = new Prefs(this);
+        boolean invalid = prefs.getBoolean(Prefs.AUTH_INVALID);
+        boolean needsAuth = LaunchRoute.decide(credentials) == LaunchRoute.AUTH;
+        if (invalid || needsAuth) {
+            setTextIfChanged(banner, Ui.s(this, invalid
+                    ? Strings.HOME_BANNER_AUTH_INVALID : Strings.HOME_BANNER_NOT_AUTHED));
+            banner.setVisibility(View.VISIBLE);
+        } else {
+            banner.setVisibility(View.GONE);
+        }
     }
+
+    private void resolveInstalledSources() {
+        for (int i = 0; i < sourcePackages.length; i++) {
+            try {
+                getPackageManager().getPackageInfo(sourcePackages[i], 0);
+                installed[i] = true;
+            } catch (PackageManager.NameNotFoundException missing) {
+                installed[i] = false;
+            }
+        }
+    }
+
+    private void refreshQueueCounts() {
+        ScrobbleDb db = new ScrobbleDb(this);
+        try {
+            pendingCount = db.countPending();
+            deadCount = db.countDead();
+        } catch (Throwable error) {
+            Log.e(Const.TAG, "Unable to refresh queue counts", error);
+        } finally {
+            db.close();
+        }
+        updateQueueRow();
+    }
+
+    private void updateQueueRow() {
+        String title = Ui.s(this, Strings.HOME_QUEUE_PENDING, pendingCount);
+        if (!title.equals(lastQueueTitle)) {
+            queueRow.title.setText(title);
+            lastQueueTitle = title;
+        }
+        String sent = formatLastSent(new Prefs(this).getLong(Prefs.LAST_SENT_AT));
+        if (sent.length() == 0) sent = Ui.s(this, Strings.HOME_NEVER_SENT);
+        String detail = Ui.s(this, Strings.HOME_QUEUE_DETAIL, deadCount, sent);
+        int color = deadCount > 0 ? Ui.WARN : Ui.OK;
+        String rendered = detail + "|" + color;
+        if (!rendered.equals(lastQueueStatus)) {
+            Ui.setStatus(queueRow.subtitle, detail, color);
+            lastQueueStatus = rendered;
+        }
+    }
+
+    private String formatLastSent(long epochMillis) {
+        if (epochMillis <= 0L) return "";
+        Date sent = new Date(epochMillis);
+        Date now = new Date();
+        SimpleDateFormat day = new SimpleDateFormat("yyyyMMdd", Locale.US);
+        String format = day.format(sent).equals(day.format(now)) ? "HH:mm" : "MM/dd HH:mm";
+        return new SimpleDateFormat(format, Locale.getDefault()).format(sent);
+    }
+
+    private void updateStatus(Map<String, String> snapshot) {
+        if (heroTitle == null) return;
+        Prefs prefs = new Prefs(this);
+        boolean serviceEnabled = prefs.getBoolean(Prefs.SERVICE_ENABLED);
+        boolean authenticated = prefs.getString(Prefs.USER_NAME).length() > 0;
+        String title = Ui.s(this, serviceEnabled ? Strings.HOME_SCROBBLING : Strings.HOME_STOPPED);
+        setTextIfChanged(heroTitle, title);
+        String subtitle = authenticated
+                ? Ui.s(this, Strings.HOME_SENDING_AS, prefs.getString(Prefs.USER_NAME))
+                : Ui.s(this, Strings.MAIN_UNAUTHENTICATED);
+        String subtitleKey = subtitle + "|" + (serviceEnabled && authenticated ? Ui.OK : Ui.OFF);
+        if (!subtitleKey.equals(lastHeroSubtitle)) {
+            Ui.setStatus(heroSubtitle, subtitle, serviceEnabled && authenticated ? Ui.OK : Ui.OFF);
+            lastHeroSubtitle = subtitleKey;
+        }
+        changingServiceToggle = true;
+        serviceToggle.setChecked(serviceEnabled);
+        tintToggle(serviceToggle, serviceEnabled);
+        changingServiceToggle = false;
+
+        String playing = serviceEnabled ? NowPlaying.pick(sourcePackages, snapshot) : null;
+        if (playing == null) {
+            nowHeading.setVisibility(View.GONE);
+            nowTitle.setVisibility(View.VISIBLE);
+            nowDetail.setVisibility(View.GONE);
+            setTextIfChanged(nowTitle, Ui.s(this, Strings.HOME_NOTHING_PLAYING));
+            lastNowDetail = null;
+        } else {
+            nowHeading.setVisibility(View.VISIBLE);
+            nowDetail.setVisibility(View.VISIBLE);
+            setTextIfChanged(nowHeading, Ui.s(this, Strings.HOME_NOW_PLAYING, Sources.label(playing)));
+            String key = Sources.statusKey(playing);
+            String track = value(snapshot.get("np_title_" + key));
+            String artist = value(snapshot.get("np_artist_" + key));
+            String album = value(snapshot.get("np_album_" + key));
+            String detail = artist.length() == 0 ? album
+                    : album.length() == 0 ? artist : artist + " — " + album;
+            setTextIfChanged(nowTitle, track);
+            setTextIfChanged(nowDetail, detail);
+            lastNowTitle = track;
+            lastNowDetail = detail;
+        }
+
+        for (int i = 0; i < sourcePackages.length; i++) updateSourceStatus(i, serviceEnabled,
+                prefs.getBoolean(Prefs.sourceEnabledKey(sourcePackages[i])), snapshot);
+        updateQueueRow();
+    }
+
+    private void updateSourceStatus(int index, boolean serviceEnabled, boolean sourceEnabled,
+            Map<String, String> snapshot) {
+        String pkg = sourcePackages[index];
+        String link = snapshot.get("link_" + Sources.statusKey(pkg));
+        SourceStatus state = SourceStatus.of(serviceEnabled, sourceEnabled, installed[index], link);
+        String text;
+        int color;
+        switch (state) {
+            case CONNECTED: text = Ui.s(this, Strings.SRC_CONNECTED); color = Ui.OK; break;
+            case CONNECTING: text = Ui.s(this, Strings.SRC_CONNECTING); color = Ui.WARN; break;
+            case DISCONNECTED: text = Ui.s(this, Strings.SRC_DISCONNECTED); color = Ui.WARN; break;
+            case DISABLED: text = Ui.s(this, Strings.SRC_DISABLED); color = Ui.OFF; break;
+            case NOT_INSTALLED: text = Ui.s(this, Strings.SRC_NOT_INSTALLED); color = Ui.OFF; break;
+            default: text = Ui.s(this, Strings.SRC_STOPPED); color = Ui.OFF; break;
+        }
+        String rendered = text + "|" + color;
+        if (!rendered.equals(lastSourceStatus[index])) {
+            Ui.setStatus(sourceSubtitles[index], text, color);
+            lastSourceStatus[index] = rendered;
+        }
+        if (sourceToggles[index].isChecked() != sourceEnabled) {
+            changingSourceToggles = true;
+            sourceToggles[index].setChecked(sourceEnabled);
+            tintToggle(sourceToggles[index], sourceEnabled);
+            changingSourceToggles = false;
+        }
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private static void tintToggle(Switch toggle, boolean checked) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            toggle.setTrackTintList(ColorStateList.valueOf(checked ? Ui.OK : Ui.OFF));
+        }
+    }
+
+    private static void setTextIfChanged(TextView view, String value) {
+        if (!value.equals(view.getText().toString())) view.setText(value);
+    }
+
+    private static String value(String value) { return value == null ? "" : value; }
 }
