@@ -131,6 +131,13 @@ Astell&Kern 펌웨어에서는 플레이어에서 `.apk`를 직접 열지 마세
 `.xapk` 절차를 사용하세요. 이는 Astell&Kern 펌웨어에만 해당하며 풀 Android
 펌웨어에는 적용되지 않습니다.
 
+## 자동 업데이트
+
+AKScrobble은 시작할 때 nyanstall에서 업데이트를 확인합니다. 업데이트를 수락하면 APK 서명과
+SHA-256을 확인한 뒤 다운로드하고 설치합니다. AK 펌웨어에서는 자동 업데이트가 작동하지 않을
+가능성이 높습니다. 실패하면 앱 안내에 따라 Releases에서 `.xapk`를 다운로드해 Open APP Service로
+설치하세요. 자동 업데이트를 지원하는 첫 버전은 위 절차에 따라 수동으로 설치해야 합니다.
+
 ## 문자열 정리 규칙
 
 AKScrobble은 메타데이터를 표시하고 대기열에 넣어 Last.fm으로 보내기 전에 정리할 수
@@ -230,27 +237,30 @@ OpenService를 통해 설치하세요. 풀 Android 펌웨어에서는 `.apk`를 
 
 ## 소스에서 빌드
 
-```sh
-./tools/fetch_sdk.sh                                   # installs Android SDK under tools/android-sdk/
-./build/build_scrobbler.sh fm.last.android 1 out.apk   # base APK
-./build/make_release.sh 1 0.1.0                        # apk + xapk under artifacts/release/
-./verify/run_all.sh                                    # unit tests + APK/XAPK constraint checks
-```
+일반 릴리스에는 release-please를 사용합니다. `feat:` 및 `fix:` 같은 Conventional Commits를
+`main`에 push하면 릴리스 PR이 갱신됩니다. PR을 merge하면 APK와 XAPK 빌드 및 서명, 인증서 확인,
+GitHub Release에 두 파일 첨부, nyanstall에 APK 등록이 진행됩니다. nyanstall 관리 화면에서
+`stable` 승격을 수동으로 진행하세요.
 
-배포 산출물은 명시적으로 지정한 키로 서명해야 합니다. `tools/env.sh`가
-대체값으로 사용하는 개발용 키스토어는 비밀번호가 이 저장소에 포함되어 있으므로
-배포물 서명에 사용해서는 안 됩니다. 릴리스 키는 한 번만 만들고 계속 같은 것을
-사용하세요. 빌드할 때 다음 두 변수를 설정합니다.
+긴급 릴리스에서는 Android SDK를 설치하고 기존 릴리스 스크립트를 사용합니다. 배포 파일은
+명시적으로 지정한 키로 서명해야 합니다. `tools/env.sh`의 개발용 키스토어는 비밀번호가 저장소에
+포함되어 있으므로 배포에 사용하면 안 됩니다. 릴리스 키는 한 번 만든 뒤 모든 릴리스에서 동일하게
+사용하세요.
 
 ```sh
+./tools/fetch_sdk.sh
 export AKS_KEYSTORE=/secure/path/akscrobble-release.keystore
 export AKS_KS_PASS='<릴리스 키스토어 비밀번호>'
-./build/make_release.sh 20 1.0.0
+./build/make_release.sh 1000002 1.0.2
+./verify/run_all.sh
 ```
 
 `make_release.sh`는 둘 중 하나라도 설정되지 않으면 실행을 거부하고, 키스토어가
 아직 없으면 생성용 `keytool` 명령을 출력합니다. 나중에 서명 키를 바꾸면 이미
 설치한 사용자가 업데이트할 수 없게 됩니다.
+
+버전 코드는 `build/ci_version_code.sh`가 `MAJOR*1000000 + MINOR*1000 + PATCH`로 계산합니다.
+예를 들어 `1.0.2`의 코드는 `1000002`입니다.
 
 
 빌드에는 Gradle이나 Android Studio를 사용하지 않습니다. 스크립트가 `aapt2`, `javac`, `d8`,

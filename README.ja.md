@@ -136,6 +136,14 @@ Astell&Kern ファームウェアでは、プレーヤー上で `.apk` を直接
 上記の Open APP Service `.xapk` 手順を使用してください。これは Astell&Kern
 ファームウェアだけの話で、フル Android ファームウェアには当てはまりません。
 
+## 自己更新
+
+AKScrobble は起動時に nyanstall へ更新を確認します。更新を承諾すると、APK の署名と
+SHA-256 を検証してからダウンロードとインストールを行います。AK ファームでは自己更新が
+使えない可能性が高く、失敗した場合はアプリ内の案内に従って Releases から `.xapk` を
+ダウンロードし、Open APP Service でインストールしてください。自己更新に対応した最初の
+バージョンは、上記の手順で手動インストールする必要があります。
+
 ## サニタイズルール
 
 AKScrobble は、メタデータを表示、キューへの追加、Last.fm への送信の前に整形できます。
@@ -239,27 +247,30 @@ Astell&Kern ファームウェアで `.apk` を直接開こうとしていない
 
 ## ソースからのビルド
 
-```sh
-./tools/fetch_sdk.sh                                   # installs Android SDK under tools/android-sdk/
-./build/build_scrobbler.sh fm.last.android 1 out.apk   # base APK
-./build/make_release.sh 1 0.1.0                        # apk + xapk under artifacts/release/
-./verify/run_all.sh                                    # unit tests + APK/XAPK constraint checks
-```
+通常のリリースでは release-please を使います。`feat:` や `fix:` などの Conventional Commits を
+`main` に push するとリリース PR が更新されます。その PR を merge すると APK と XAPK の
+ビルド・署名、証明書の照合、GitHub Release への添付、nyanstall への APK 登録が行われます。
+nyanstall 管理画面で `stable` への昇格を手動で行います。
 
-配布する成果物は、明示的に指定した鍵で署名する必要があります。`tools/env.sh` が
-フォールバックする開発用の鍵はパスワードがこのリポジトリに載っているため、
-配布物の署名に使ってはいけません。リリース鍵は一度だけ作り、以後ずっと同じものを
-使い続けてください。ビルド時に次の 2 つを設定します。
+緊急リリースでは Android SDK をインストールし、既存のリリーススクリプトを使います。
+配布物には明示的に指定した鍵で署名してください。`tools/env.sh` が使う開発用キーストアは
+パスワードがリポジトリに含まれているため、配布物には絶対に使わないでください。
+リリース鍵は一度作成したら、すべてのリリースで同じものを使います。
 
 ```sh
+./tools/fetch_sdk.sh
 export AKS_KEYSTORE=/secure/path/akscrobble-release.keystore
 export AKS_KS_PASS='<リリース鍵のパスワード>'
-./build/make_release.sh 20 1.0.0
+./build/make_release.sh 1000002 1.0.2
+./verify/run_all.sh
 ```
 
 `make_release.sh` はどちらかが未設定なら実行を拒否し、鍵がまだ無い場合は
 作成用の `keytool` コマンドを表示します。あとから署名鍵を変えると、
 すでにインストールした人が更新できなくなります。
+
+バージョンコードは `build/ci_version_code.sh` が `MAJOR*1000000 + MINOR*1000 + PATCH` で
+計算します。たとえば `1.0.2` のコードは `1000002` です。
 
 
 ビルドには Gradle も Android Studio も使用しません。スクリプトから `aapt2`、`javac`、`d8`、

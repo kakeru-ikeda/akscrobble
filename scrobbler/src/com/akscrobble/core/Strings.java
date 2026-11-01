@@ -117,6 +117,15 @@ public final class Strings {
     public static final String CRED_AUTH = "cred.auth";
     public static final String CRED_EMPTY = "cred.empty";
     public static final String CRED_SAVED = "cred.saved";
+    public static final String UPDATE_AVAILABLE_TITLE = "update.available_title";
+    public static final String UPDATE_REQUIRED_TITLE = "update.required_title";
+    public static final String UPDATE_MESSAGE = "update.message";
+    public static final String UPDATE_INSTALL = "update.install";
+    public static final String UPDATE_LATER = "update.later";
+    public static final String UPDATE_DOWNLOADING = "update.downloading";
+    public static final String UPDATE_NEEDS_PERMISSION = "update.needs_permission";
+    public static final String UPDATE_FALLBACK_TITLE = "update.fallback_title";
+    public static final String UPDATE_FALLBACK_MESSAGE = "update.fallback_message";
 
     private static final String[][] TABLE = {
         {NOTIF_TITLE, "AKScrobble", "AKScrobble", "AKScrobble"},
@@ -230,6 +239,15 @@ public final class Strings {
         {CRED_AUTH, "Last.fm 認証へ進む", "Continue to Last.fm authentication", "Last.fm 인증으로 계속"},
         {CRED_EMPTY, "API キーと API シークレットの両方を入力してください。", "Enter both the API key and API secret.", "API 키와 API 시크릿을 모두 입력하세요."},
         {CRED_SAVED, "API キーと API シークレットを保存しました。", "API key and secret saved.", "API 키와 API 시크릿을 저장했습니다."},
+        {UPDATE_AVAILABLE_TITLE, "更新があります", "Update available", "업데이트가 있습니다"},
+        {UPDATE_REQUIRED_TITLE, "更新が必要です", "Update required", "업데이트가 필요합니다"},
+        {UPDATE_MESSAGE, "バージョン {0} が利用できます。\n{1}", "Version {0} is available.\n{1}", "버전 {0}을 사용할 수 있습니다.\n{1}"},
+        {UPDATE_INSTALL, "更新する", "Install", "설치"},
+        {UPDATE_LATER, "後で", "Later", "나중에"},
+        {UPDATE_DOWNLOADING, "更新をダウンロードしています…", "Downloading update…", "업데이트를 다운로드하는 중…"},
+        {UPDATE_NEEDS_PERMISSION, "提供元不明のアプリのインストールを許可してから、もう一度更新してください。", "Allow installs from this source, then try the update again.", "이 출처의 앱 설치를 허용한 다음 업데이트를 다시 시도하세요."},
+        {UPDATE_FALLBACK_TITLE, "手動で更新してください", "Update manually", "수동으로 업데이트하세요"},
+        {UPDATE_FALLBACK_MESSAGE, "この機種では自動更新できません。xapk を Open APP Service で入れてください。\n{0}", "Automatic updates are not available on this device. Download the xapk from Releases and install it with Open APP Service.\n{0}", "이 기기에서는 자동 업데이트를 사용할 수 없습니다. Releases에서 xapk를 받아 Open APP Service로 설치하세요.\n{0}"},
     };
 
     public static String get(Lang lang, String key, Object... args) {
