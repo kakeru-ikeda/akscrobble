@@ -5,7 +5,7 @@
 
 ### Features
 
-* self-update via nyanstall ([#7](https://github.com/kakeru-ikeda/akscrobble/issues/7)) ([17bb69b](https://github.com/kakeru-ikeda/akscrobble/commit/17bb69b480f38d014521e3c943eb6b1dbf963552))
+* self-update via the update server ([#7](https://github.com/kakeru-ikeda/akscrobble/issues/7)) ([17bb69b](https://github.com/kakeru-ikeda/akscrobble/commit/17bb69b480f38d014521e3c943eb6b1dbf963552))
 
 
 ### Bug Fixes
@@ -15,4 +15,4 @@
 
 ### CI
 
-* add release-please, signed CI build and nyanstall publish ([#5](https://github.com/kakeru-ikeda/akscrobble/issues/5)) ([19730cd](https://github.com/kakeru-ikeda/akscrobble/commit/19730cdf7c085c94f7dfb441ae55f1426e5dcd08))
+* add release-please, signed CI build and update server publish ([#5](https://github.com/kakeru-ikeda/akscrobble/issues/5)) ([19730cd](https://github.com/kakeru-ikeda/akscrobble/commit/19730cdf7c085c94f7dfb441ae55f1426e5dcd08))
