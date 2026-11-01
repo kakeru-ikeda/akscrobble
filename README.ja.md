@@ -138,7 +138,7 @@ Astell&Kern ファームウェアでは、プレーヤー上で `.apk` を直接
 
 ## 自己更新
 
-AKScrobble は起動時に nyanstall へ更新を確認します。更新を承諾すると、APK の署名と
+AKScrobble は起動時に 更新サーバーへ更新を確認します。更新を承諾すると、APK の署名と
 SHA-256 を検証してからダウンロードとインストールを行います。AK ファームでは自己更新が
 使えない可能性が高く、失敗した場合はアプリ内の案内に従って Releases から `.xapk` を
 ダウンロードし、Open APP Service でインストールしてください。自己更新に対応した最初の
@@ -249,8 +249,8 @@ Astell&Kern ファームウェアで `.apk` を直接開こうとしていない
 
 通常のリリースでは release-please を使います。`feat:` や `fix:` などの Conventional Commits を
 `main` に push するとリリース PR が更新されます。その PR を merge すると APK と XAPK の
-ビルド・署名、証明書の照合、GitHub Release への添付、nyanstall への APK 登録が行われます。
-nyanstall 管理画面で `stable` への昇格を手動で行います。
+ビルド・署名、証明書の照合、GitHub Release への添付、更新サーバーへの APK 登録が行われます。
+更新サーバーの管理画面で `stable` への昇格を手動で行います。
 
 緊急リリースでは Android SDK をインストールし、既存のリリーススクリプトを使います。
 配布物には明示的に指定した鍵で署名してください。`tools/env.sh` が使う開発用キーストアは

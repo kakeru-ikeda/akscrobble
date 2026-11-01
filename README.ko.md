@@ -133,7 +133,7 @@ Astell&Kern 펌웨어에서는 플레이어에서 `.apk`를 직접 열지 마세
 
 ## 자동 업데이트
 
-AKScrobble은 시작할 때 nyanstall에서 업데이트를 확인합니다. 업데이트를 수락하면 APK 서명과
+AKScrobble은 시작할 때 업데이트 서버에서 업데이트를 확인합니다. 업데이트를 수락하면 APK 서명과
 SHA-256을 확인한 뒤 다운로드하고 설치합니다. AK 펌웨어에서는 자동 업데이트가 작동하지 않을
 가능성이 높습니다. 실패하면 앱 안내에 따라 Releases에서 `.xapk`를 다운로드해 Open APP Service로
 설치하세요. 자동 업데이트를 지원하는 첫 버전은 위 절차에 따라 수동으로 설치해야 합니다.
@@ -239,7 +239,7 @@ OpenService를 통해 설치하세요. 풀 Android 펌웨어에서는 `.apk`를 
 
 일반 릴리스에는 release-please를 사용합니다. `feat:` 및 `fix:` 같은 Conventional Commits를
 `main`에 push하면 릴리스 PR이 갱신됩니다. PR을 merge하면 APK와 XAPK 빌드 및 서명, 인증서 확인,
-GitHub Release에 두 파일 첨부, nyanstall에 APK 등록이 진행됩니다. nyanstall 관리 화면에서
+GitHub Release에 두 파일 첨부, 업데이트 서버에 APK 등록이 진행됩니다. 업데이트 서버 관리 화면에서
 `stable` 승격을 수동으로 진행하세요.
 
 긴급 릴리스에서는 Android SDK를 설치하고 기존 릴리스 스크립트를 사용합니다. 배포 파일은
