@@ -35,7 +35,7 @@ public final class UpdateFlow {
         InstallOutcome.setListener(new InstallOutcome.Listener() {
             @Override public void onOutcome(InstallOutcome outcome, String message) {
                 if (outcome == InstallOutcome.FAILED) showFallback(activity);
-                else if (outcome == InstallOutcome.NEEDS_PERMISSION && !activity.isFinishing())
+                else if (outcome == InstallOutcome.NEEDS_PERMISSION && !activity.isFinishing() && !activity.isDestroyed())
                     new AlertDialog.Builder(activity)
                             .setMessage(Ui.s(activity, Strings.UPDATE_NEEDS_PERMISSION))
                             .setPositiveButton(android.R.string.ok, null).show();
@@ -62,7 +62,7 @@ public final class UpdateFlow {
     }
 
     public static void showFallback(final Activity activity) {
-        if (activity.isFinishing()) return;
+        if (activity.isFinishing() || activity.isDestroyed()) return;
         new AlertDialog.Builder(activity).setTitle(Ui.s(activity, Strings.UPDATE_FALLBACK_TITLE))
                 .setMessage(Ui.s(activity, Strings.UPDATE_FALLBACK_MESSAGE, RELEASES_URL))
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
