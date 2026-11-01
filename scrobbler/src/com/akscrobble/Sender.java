@@ -165,6 +165,9 @@ public final class Sender {
                     continue;
                 }
                 markSuccessfulBatch(batch, response);
+                if (response.accepted > 0) {
+                    prefs.putLong(Prefs.LAST_SENT_AT, System.currentTimeMillis());
+                }
                 // 送信が通った時点で認証は有効。古い AUTH_INVALID が残っていたら解除する。
                 if (prefs.getBoolean(Prefs.AUTH_INVALID)) {
                     prefs.putBoolean(Prefs.AUTH_INVALID, false);

@@ -3,6 +3,8 @@ package com.akscrobble;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.akscrobble.core.Sources;
+
 public final class Prefs {
     public static final String SESSION_KEY = "session_key";
     public static final String USER_NAME = "user_name";
@@ -16,6 +18,11 @@ public final class Prefs {
     public static final String AUTH_INVALID_FOR = "auth_invalid_for";
     public static final String SERVICE_ENABLED = "service_enabled";
     public static final String LANGUAGE = "language";
+    public static final String LAST_SENT_AT = "last_sent_at";
+
+    public static String sourceEnabledKey(String pkg) {
+        return Sources.prefKey(pkg);
+    }
 
     private final SharedPreferences preferences;
 
@@ -32,11 +39,20 @@ public final class Prefs {
     }
 
     public boolean getBoolean(String key) {
-        return preferences.getBoolean(key, SANITIZE_ENABLED.equals(key));
+        return preferences.getBoolean(key,
+                SANITIZE_ENABLED.equals(key) || key.startsWith(Sources.PREF_PREFIX));
     }
 
     public void putBoolean(String key, boolean value) {
         preferences.edit().putBoolean(key, value).apply();
+    }
+
+    public long getLong(String key) {
+        return preferences.getLong(key, 0L);
+    }
+
+    public void putLong(String key, long value) {
+        preferences.edit().putLong(key, value).apply();
     }
 
     private Prefs() {
