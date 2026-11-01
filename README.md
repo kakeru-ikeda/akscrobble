@@ -138,6 +138,15 @@ player. That installation path is disabled, so it always ends with a package
 parsing error; use the Open APP Service `.xapk` procedure above. This applies
 only to the Astell&Kern firmware, not to full Android firmware.
 
+## Self-updates
+
+AKScrobble checks the update server for updates when it starts. If you accept an update,
+the app downloads and installs it after checking the APK signature and SHA-256.
+Self-updates are unlikely to work on AK firmware. If they fail, follow the
+in-app instructions to download the `.xapk` from Releases and install it with
+Open APP Service. The first version with self-update support must be installed
+manually using the `.xapk` procedure above.
+
 ## Sanitize rules
 
 AKScrobble can clean metadata before it is displayed, queued, and sent to
@@ -250,12 +259,8 @@ and surrounding state when reporting the problem.
 Normal releases use release-please. Conventional Commits such as `feat:` and
 `fix:` on `main` update a release PR. Merge that PR to build and sign the APK
 and XAPK, verify the signing certificate, attach both assets to the GitHub
-Release, and register the APK with nyanstall. Promote a release to `stable`
-manually in the nyanstall admin UI.
-
-The version code is calculated as `MAJOR*1000000 + MINOR*1000 + PATCH` by
-`build/ci_version_code.sh`. For example, version `1.0.2` has version code
-`1000002`.
+Release, and register the APK with the update server. Promote a release to `stable`
+manually in the update server's admin UI.
 
 For an emergency local release, install the Android SDK and run the existing
 release script. Release artifacts must be signed with an explicitly provided

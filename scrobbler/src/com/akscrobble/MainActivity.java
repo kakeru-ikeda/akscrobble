@@ -2,6 +2,8 @@ package com.akscrobble;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +29,10 @@ import android.widget.TextView;
 import com.akscrobble.core.Const;
 import com.akscrobble.core.PendingScrobble;
 import com.akscrobble.core.Strings;
+import com.akscrobble.core.update.UpdateDecision;
+import com.akscrobble.core.update.UpdateManifest;
+import com.akscrobble.update.UpdateChecker;
+import com.akscrobble.update.UpdateFlow;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
@@ -100,6 +106,26 @@ public final class MainActivity extends Activity {
         scroll.addView(content);
         setContentView(scroll);
         requestStorage();
+        UpdateChecker.check(this, new UpdateChecker.Callback() {
+            @Override public void onResult(UpdateDecision decision, final UpdateManifest manifest) {
+                if (isFinishing()) return;
+                boolean required = decision == UpdateDecision.REQUIRED;
+                AlertDialog.Builder prompt = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(Ui.s(MainActivity.this, required
+                                ? Strings.UPDATE_REQUIRED_TITLE : Strings.UPDATE_AVAILABLE_TITLE))
+                        .setMessage(Ui.s(MainActivity.this, Strings.UPDATE_MESSAGE,
+                                manifest.version, manifest.notes == null ? "" : manifest.notes))
+                        .setPositiveButton(Ui.s(MainActivity.this, Strings.UPDATE_INSTALL),
+                                new DialogInterface.OnClickListener() {
+                                    @Override public void onClick(DialogInterface dialog, int which) {
+                                        UpdateFlow.start(MainActivity.this, manifest);
+                                    }
+                                });
+                if (required) prompt.setCancelable(false);
+                else prompt.setNegativeButton(Ui.s(MainActivity.this, Strings.UPDATE_LATER), null);
+                prompt.show();
+            }
+        });
     }
 
     @Override protected void onResume() {
