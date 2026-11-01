@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.1](https://github.com/kakeru-ikeda/akscrobble/compare/v1.1.0...v1.1.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* show the app version on the main screen ([#11](https://github.com/kakeru-ikeda/akscrobble/issues/11)) ([b13e766](https://github.com/kakeru-ikeda/akscrobble/commit/b13e7665ec3f6c3abe4bb163a06203e791b63443))
+
+
+### CI
+
+* tag releases as vX.Y.Z without the component name ([#9](https://github.com/kakeru-ikeda/akscrobble/issues/9)) ([56b6766](https://github.com/kakeru-ikeda/akscrobble/commit/56b6766775642dbe37262ba336b1786e10b79d2e))
+
 ## [1.1.0](https://github.com/kakeru-ikeda/akscrobble/compare/akscrobble-v1.0.2...akscrobble-v1.1.0) (2026-11-01)
 
 
