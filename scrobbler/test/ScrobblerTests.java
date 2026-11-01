@@ -33,6 +33,9 @@ public final class ScrobblerTests {
         QueuePolicyTests.run();
         BackoffTests.run();
         ConfigTests.run();
+        UpdateManifestTests.run();
+        UpdateDecisionTests.run();
+        Sha256SinkTests.run();
         System.exit(TestKit.finish());
     }
 
