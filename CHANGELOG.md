@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/kakeru-ikeda/akscrobble/compare/v1.1.3...v1.2.0) (2026-11-01)
+
+
+### Features
+
+* **ui:** redesign UI with setup flow and per-source toggles ([#16](https://github.com/kakeru-ikeda/akscrobble/issues/16)) ([828d7a2](https://github.com/kakeru-ikeda/akscrobble/commit/828d7a2ef38a865ba98544d4e77a39c01460f697))
+
 ## [1.1.3](https://github.com/kakeru-ikeda/akscrobble/compare/v1.1.2...v1.1.3) (2026-11-01)
 
 
