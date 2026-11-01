@@ -69,7 +69,7 @@ public final class AuthActivity extends Activity {
 
         status = new TextView(this);
         status.setTextIsSelectable(true);
-        status.setTextColor(Color.BLACK);
+        status.setTextColor(Color.WHITE);
         status.setPadding(4, 10, 4, 10);
         root.addView(status, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));

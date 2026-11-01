@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AKS.Theme" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/aks_bg</item>
+        <item name="android:colorBackground">@color/aks_bg</item>
+        <item name="android:statusBarColor">@color/aks_bg</item>
+        <item name="android:navigationBarColor">@color/aks_bg</item>
+        <item name="android:colorAccent">@color/aks_accent</item>
+        <item name="android:textColorPrimary">@color/aks_fg</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+</resources>

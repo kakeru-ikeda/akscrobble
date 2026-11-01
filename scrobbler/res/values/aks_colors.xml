@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="aks_bg">#FF0F0F10</color>
+    <color name="aks_surface">#FF1A1A1C</color>
+    <color name="aks_fg">#FFF2F1EF</color>
+    <color name="aks_accent">#FFE0281C</color>
+</resources>
