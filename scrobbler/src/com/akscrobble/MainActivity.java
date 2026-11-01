@@ -93,6 +93,14 @@ public final class MainActivity extends Activity {
         addButton(content, Ui.s(this, Strings.MAIN_SAVE_DIAGNOSTIC), new View.OnClickListener() {
             @Override public void onClick(View v) { saveDiagnosticDump(); }
         });
+        TextView version = new TextView(this);
+        version.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f);
+        version.setPadding(8, 12, 8, 4);
+        try {
+            version.setText(Ui.s(this, Strings.MAIN_VERSION,
+                    getPackageManager().getPackageInfo(getPackageName(), 0).versionName));
+        } catch (Exception ignored) { }
+        content.addView(version);
         status = new TextView(this);
         status.setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f);
         status.setTypeface(android.graphics.Typeface.MONOSPACE);

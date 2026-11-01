@@ -122,6 +122,7 @@ public final class Strings {
     public static final String UPDATE_MESSAGE = "update.message";
     public static final String UPDATE_INSTALL = "update.install";
     public static final String UPDATE_LATER = "update.later";
+    public static final String MAIN_VERSION = "main.version";
     public static final String UPDATE_DOWNLOADING = "update.downloading";
     public static final String UPDATE_NEEDS_PERMISSION = "update.needs_permission";
     public static final String UPDATE_FALLBACK_TITLE = "update.fallback_title";
@@ -244,6 +245,7 @@ public final class Strings {
         {UPDATE_MESSAGE, "バージョン {0} が利用できます。\n{1}", "Version {0} is available.\n{1}", "버전 {0}을 사용할 수 있습니다.\n{1}"},
         {UPDATE_INSTALL, "更新する", "Install", "설치"},
         {UPDATE_LATER, "後で", "Later", "나중에"},
+        {MAIN_VERSION, "バージョン {0}", "Version {0}", "버전 {0}"},
         {UPDATE_DOWNLOADING, "更新をダウンロードしています…", "Downloading update…", "업데이트를 다운로드하는 중…"},
         {UPDATE_NEEDS_PERMISSION, "提供元不明のアプリのインストールを許可してから、もう一度更新してください。", "Allow installs from this source, then try the update again.", "이 출처의 앱 설치를 허용한 다음 업데이트를 다시 시도하세요."},
         {UPDATE_FALLBACK_TITLE, "手動で更新してください", "Update manually", "수동으로 업데이트하세요"},
