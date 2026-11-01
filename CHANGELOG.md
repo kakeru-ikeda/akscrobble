@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/kakeru-ikeda/akscrobble/compare/v1.1.2...v1.1.3) (2026-11-01)
+
+
+### Bug Fixes
+
+* **update:** do not show update dialogs on a destroyed activity ([#14](https://github.com/kakeru-ikeda/akscrobble/issues/14)) ([d5fb03f](https://github.com/kakeru-ikeda/akscrobble/commit/d5fb03fd6f501d17e9254f50e9d28aa84f549148))
+
 ## [1.1.2](https://github.com/kakeru-ikeda/akscrobble/compare/v1.1.1...v1.1.2) (2026-11-01)
 
 
