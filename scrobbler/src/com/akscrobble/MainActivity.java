@@ -138,6 +138,7 @@ public final class MainActivity extends Activity {
 
     @Override protected void onResume() {
         super.onResume(); refreshing = true; handler.removeCallbacks(refresh); handler.post(refresh);
+        UpdateFlow.resumeIfPermitted(this);
     }
     @Override protected void onPause() {
         refreshing = false; handler.removeCallbacks(refresh); super.onPause();
