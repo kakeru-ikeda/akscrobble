@@ -46,6 +46,7 @@ public final class SetupActivity extends Activity {
         message = Ui.text(this, "", 12, Ui.FG);
         body.addView(message, matchWrap());
         addSourcePreview();
+        addDeviceSection();
         refreshRoute();
 
         if (!AppActions.hasStorage(this)) AppActions.requestStorage(this, REQ_STORAGE);
@@ -185,6 +186,19 @@ public final class SetupActivity extends Activity {
         }
         list.setAlpha(0.4f);
         body.addView(list, matchWrap());
+    }
+
+    private void addDeviceSection() {
+        body.addView(Ui.section(this, Ui.s(this, Strings.HOME_SEC_DEVICE)), matchWrap());
+        LinearLayout device = Ui.list(this);
+        Ui.addRow(device, Ui.row(this, Ui.s(this, Strings.MAIN_BTN_ADB),
+                Ui.s(this, Strings.HOME_ADB_SUB), null, null,
+                new View.OnClickListener() {
+                    @Override public void onClick(View view) {
+                        startActivity(new Intent(SetupActivity.this, AdbActivity.class));
+                    }
+                }).view);
+        body.addView(device, matchWrap());
     }
 
     private void saveAndProceed() {
