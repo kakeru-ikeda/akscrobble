@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/kakeru-ikeda/akscrobble/compare/v1.2.0...v1.2.1) (2026-11-09)
+
+
+### Bug Fixes
+
+* **setup:** show ADB option button on the setup screen ([#18](https://github.com/kakeru-ikeda/akscrobble/issues/18)) ([3b7a19a](https://github.com/kakeru-ikeda/akscrobble/commit/3b7a19ad8b13046ffc0af122b0f4236ebd7c7c3c))
+
 ## [1.2.0](https://github.com/kakeru-ikeda/akscrobble/compare/v1.1.3...v1.2.0) (2026-11-01)
 
 
