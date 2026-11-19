@@ -28,37 +28,40 @@ public final class ConfigTests {
                 "session_key", "file-session", "session_api_key", "file-session-key");
         Map<String, String> prefs = map("api_key", "prefs-key", "api_secret", "prefs-secret",
                 "session_key", "prefs-session", "session_api_key", "prefs-session-key");
-        Credentials resolved = Credentials.resolve(file, prefs, "builtin-key", "builtin-secret");
-        TestKit.eq("file wins per field", "file-key", resolved.apiKey);
-        TestKit.eq("empty file falls through to prefs", "prefs-secret", resolved.apiSecret);
+        Credentials resolved = Credentials.resolve(file, prefs);
         TestKit.eq("session resolves independently", "file-session", resolved.sessionKey);
         TestKit.eq("session API key resolves independently", "file-session-key", resolved.sessionApiKey);
-        TestKit.eq("config source", "config", resolved.source("api_key"));
-        TestKit.eq("prefs source", "prefs", resolved.source("apiSecret"));
         TestKit.check("complete credentials", resolved.isComplete());
 
         Credentials sessionOnly = Credentials.resolve(new HashMap<String, String>(),
-                map("session_key", "session", "session_api_key", "session-key"), "", "");
+                map("session_key", "session", "session_api_key", "session-key"));
         TestKit.check("session pair is complete without API credentials", sessionOnly.isComplete());
         Credentials missingSessionApiKey = Credentials.resolve(new HashMap<String, String>(),
-                map("session_key", "session"), "builtin-key", "builtin-secret");
+                map("session_key", "session"));
         TestKit.check("session API key is required", !missingSessionApiKey.isComplete());
+        Credentials missingSessionKey = Credentials.resolve(new HashMap<String, String>(),
+                map("session_api_key", "session-key"));
+        TestKit.check("session key is required", !missingSessionKey.isComplete());
+        Credentials ignoredApiKeys = Credentials.resolve(map("api_key", "ignored-key",
+                "api_secret", "ignored-secret"), new HashMap<String, String>());
+        TestKit.check("API keys in config do not affect credentials",
+                !ignoredApiKeys.isComplete());
 
         String fingerprint = sessionOnly.fingerprint();
         TestKit.check("fingerprint is lowercase MD5", fingerprint.matches("[0-9a-f]{32}"));
         TestKit.check("fingerprint changes with session API key", !fingerprint.equals(
                 Credentials.resolve(new HashMap<String, String>(),
-                        map("session_key", "session", "session_api_key", "other-key"), "", "")
+                        map("session_key", "session", "session_api_key", "other-key"))
                         .fingerprint()));
         TestKit.check("fingerprint changes with session key", !fingerprint.equals(
                 Credentials.resolve(new HashMap<String, String>(),
-                        map("session_key", "other-session", "session_api_key", "session-key"), "", "")
+                        map("session_key", "other-session", "session_api_key", "session-key"))
                         .fingerprint()));
 
-        file.put("api_key", "   ");
-        prefs.put("api_key", "");
-        Credentials whitespace = Credentials.resolve(file, prefs, "fallback", "secret");
-        TestKit.eq("blank values are unset", "fallback", whitespace.apiKey);
+        file.put("session_key", "   ");
+        prefs.put("session_key", "");
+        Credentials whitespace = Credentials.resolve(file, prefs);
+        TestKit.eq("blank values are unset", "", whitespace.sessionKey);
     }
 
     private static Map<String, String> map(String... values) {

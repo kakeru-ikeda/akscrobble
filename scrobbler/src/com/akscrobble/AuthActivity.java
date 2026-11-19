@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.akscrobble.core.LastfmResponse;
 import com.akscrobble.core.Strings;
 import java.net.URLEncoder;
-import java.util.Map;
 
 public final class AuthActivity extends Activity {
     private static final String DESKTOP_UA = "Mozilla/5.0 (Linux; Android 9) "
@@ -52,10 +51,6 @@ public final class AuthActivity extends Activity {
                         if (approvalUrl == null) requestToken(false, true);
                         else showApprovalUrl(true);
                     }
-                }));
-        body.addView(Ui.button(this, Ui.s(this, Strings.AUTH_IMPORT_CONFIG), false,
-                new View.OnClickListener() {
-                    @Override public void onClick(View view) { importConfig(); }
                 }));
         replaceUa = Ui.checkBox(this, Ui.s(this, Strings.AUTH_USE_NEW_UA), false);
         replaceUa.setChecked(false);
@@ -134,19 +129,6 @@ public final class AuthActivity extends Activity {
         });
     }
 
-    private void importConfig() {
-        Map<String, String> file = new ConfigStore(this).load();
-        String session = clean(file.get("session_key"));
-        if (session.length() == 0) {
-            show(Ui.s(this, Strings.AUTH_CONFIG_SESSION_MISSING)); return;
-        }
-        Prefs prefs = new Prefs(this);
-        prefs.putString(Prefs.SESSION_KEY, session);
-        String user = clean(file.get("user_name"));
-        if (user.length() > 0) prefs.putString(Prefs.USER_NAME, user);
-        completeAuthentication();
-    }
-
     private void saveSession(String session, String user, String apiKey) {
         Prefs prefs = new Prefs(this);
         prefs.putString(Prefs.SESSION_KEY, session);
@@ -160,6 +142,7 @@ public final class AuthActivity extends Activity {
         prefs.putBoolean(Prefs.AUTH_INVALID, false);
         prefs.putBoolean(Prefs.SIGNER_UNAVAILABLE, false);
         prefs.putBoolean(Prefs.SERVICE_PROBLEM, false);
+        prefs.putBoolean(Prefs.SETUP_DISMISSED, true);
         Intent flush = new Intent(this, ScrobbleService.class);
         flush.setAction(com.akscrobble.core.Const.ACTION_FLUSH);
         startService(flush);

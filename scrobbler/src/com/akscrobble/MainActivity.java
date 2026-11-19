@@ -70,7 +70,8 @@ public final class MainActivity extends Activity {
         super.onCreate(state);
         createdLanguage = Ui.lang(this);
         installCrashHandler();
-        if (LaunchRoute.decide(ConfigStore.credentials(this)) == LaunchRoute.SETUP) {
+        if (LaunchRoute.decide(ConfigStore.credentials(this),
+                new Prefs(this).getBoolean(Prefs.SETUP_DISMISSED)) == LaunchRoute.SETUP) {
             startActivity(new Intent(this, SetupActivity.class));
             finish();
             return;
@@ -243,7 +244,8 @@ public final class MainActivity extends Activity {
     private void refreshBanner(com.akscrobble.core.Credentials credentials) {
         Prefs prefs = new Prefs(this);
         boolean invalid = prefs.getBoolean(Prefs.AUTH_INVALID);
-        boolean needsAuth = LaunchRoute.decide(credentials) == LaunchRoute.AUTH;
+        boolean needsAuth = LaunchRoute.decide(credentials,
+                prefs.getBoolean(Prefs.SETUP_DISMISSED)) == LaunchRoute.AUTH;
         if (invalid || needsAuth) {
             setTextIfChanged(banner, Ui.s(this, invalid
                     ? Strings.HOME_BANNER_AUTH_INVALID : Strings.HOME_BANNER_NOT_AUTHED));

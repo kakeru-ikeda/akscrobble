@@ -18,22 +18,14 @@ public final class ConfigStore {
 
     public ConfigStore(Context context) { this.context = context.getApplicationContext(); }
 
-    /**
-     * 認証情報を config > prefs の優先順位でフィールド単位に解決する。
-     *
-     * 呼び出し元ごとに prefs だけを直接読む実装が混ざると、UI では動くのに
-     * ScrobbleService/Sender だけ api_key が空になる（実機で発生）。
-     * 解決経路はこの 1 箇所に集約すること。
-     */
+    /** config.properties と prefs の session 情報をフィールド単位で解決する。 */
     public static Credentials credentials(Context context) {
         Map<String, String> file = new ConfigStore(context).load();
         Prefs prefs = new Prefs(context);
         Map<String, String> saved = new HashMap<String, String>();
-        saved.put("api_key", prefs.getString(Prefs.API_KEY));
-        saved.put("api_secret", prefs.getString(Prefs.API_SECRET));
         saved.put("session_key", prefs.getString(Prefs.SESSION_KEY));
         saved.put("session_api_key", prefs.getString(Prefs.SESSION_API_KEY));
-        return Credentials.resolve(file, saved, "", "");
+        return Credentials.resolve(file, saved);
     }
 
     public Map<String, String> load() {

@@ -39,10 +39,6 @@
             android:exported="false"
             android:label="Last.fm Authentication" />
         <activity
-            android:name="com.akscrobble.CredentialsActivity"
-            android:exported="false"
-            android:label="API Key" />
-        <activity
             android:name="com.akscrobble.QueueActivity"
             android:exported="false"
             android:label="Scrobble Queue" />

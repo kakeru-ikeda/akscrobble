@@ -268,10 +268,12 @@ public final class SetupActivity extends Activity {
     }
 
     private LaunchRoute route() {
-        return LaunchRoute.decide(ConfigStore.credentials(this));
+        return LaunchRoute.decide(ConfigStore.credentials(this),
+                new Prefs(this).getBoolean(Prefs.SETUP_DISMISSED));
     }
 
     private void goHome() {
+        new Prefs(this).putBoolean(Prefs.SETUP_DISMISSED, true);
         startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         finish();
     }

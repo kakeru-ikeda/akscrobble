@@ -33,9 +33,12 @@ public final class AppActions {
         try {
             Map<String, String> values = new ConfigStore(context).load();
             Prefs prefs = new Prefs(context);
-            copy(values, "api_key", Prefs.API_KEY, prefs);
-            copy(values, "api_secret", Prefs.API_SECRET, prefs);
-            copy(values, "session_key", Prefs.SESSION_KEY, prefs);
+            String session = clean(values.get("session_key"));
+            String sessionApiKey = clean(values.get("session_api_key"));
+            if (session.length() > 0 && sessionApiKey.length() > 0) {
+                prefs.putString(Prefs.SESSION_KEY, session);
+                prefs.putString(Prefs.SESSION_API_KEY, sessionApiKey);
+            }
             copy(values, "user_name", Prefs.USER_NAME, prefs);
             String sanitize = values.get("sanitize");
             if (sanitize != null && sanitize.trim().length() > 0)
@@ -171,10 +174,6 @@ public final class AppActions {
         }
     }
 
-    public static String apiKeySource(Context context) {
-        return ConfigStore.credentials(context).source("api_key");
-    }
-
     public static void showUpdatePrompt(final Activity activity, UpdateDecision decision,
             final UpdateManifest manifest) {
         if (activity.isFinishing() || activity.isDestroyed()) return;
@@ -209,6 +208,8 @@ public final class AppActions {
         String value = source.get(key);
         if (value != null && value.trim().length() > 0) prefs.putString(pref, value.trim());
     }
+
+    private static String clean(String value) { return value == null ? "" : value.trim(); }
 
     private static String oneLine(Object value) {
         return String.valueOf(value)
