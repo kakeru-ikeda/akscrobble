@@ -64,16 +64,12 @@ public final class SetupActivity extends Activity {
                     12, Ui.WARN);
             authGroup.addView(notice, matchWrap());
         }
-        authGroup.addView(Ui.text(this, Ui.s(this, Strings.SETUP_AUTH_HELP), 12, Ui.MUTED),
-                matchWrap());
         authGroup.addView(Ui.button(this, Ui.s(this, Strings.CRED_AUTH), true,
                 new View.OnClickListener() {
                     @Override public void onClick(View view) {
                         startActivity(new Intent(SetupActivity.this, AuthActivity.class));
                     }
                 }), matchWrap());
-        authGroup.addView(Ui.text(this, Ui.s(this, Strings.SETUP_SIGNING_NOTE), 11,
-                Ui.MUTED), matchWrap());
         authGroup.addView(Ui.button(this, Ui.s(this, Strings.SETUP_LATER), false,
                 new View.OnClickListener() {
                     @Override public void onClick(View view) { goHome(); }
