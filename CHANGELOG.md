@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.3.0](https://github.com/kakeru-ikeda/akscrobble/compare/v1.2.1...v1.3.0) (2026-11-19)
+
+
+### Features
+
+* **auth:** replace WebView with copy-URL external browser flow ([#23](https://github.com/kakeru-ikeda/akscrobble/issues/23)) ([af52519](https://github.com/kakeru-ikeda/akscrobble/commit/af525195b23fc8abca0314ed03f6b75188b9d858))
+* Last.fm の署名を scrobsign に移し、API キー入力方式を廃止する ([#22](https://github.com/kakeru-ikeda/akscrobble/issues/22)) ([4d356bd](https://github.com/kakeru-ikeda/akscrobble/commit/4d356bdec4f6d93c7a3f110af158593856f4caba))
+
 ## [1.2.1](https://github.com/kakeru-ikeda/akscrobble/compare/v1.2.0...v1.2.1) (2026-11-09)
 
 
