@@ -39,6 +39,7 @@ public final class ScrobblerTests {
         UpdateDecisionTests.run();
         Sha256SinkTests.run();
         ScrobsignTests.run();
+        LastfmCallTests.run();
         System.exit(TestKit.finish());
     }
 
