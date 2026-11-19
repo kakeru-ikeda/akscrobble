@@ -20,7 +20,6 @@ public final class Strings {
     public static final String MAIN_BATTERY_EXEMPTION = "main.battery_exemption";
     public static final String MAIN_BTN_SANITIZE = "main.btn_sanitize";
     public static final String MAIN_BTN_ADB = "main.btn_adb";
-    public static final String MAIN_BTN_CREDENTIALS = "main.btn_credentials";
     public static final String MAIN_SAVE_DIAGNOSTIC = "main.save_diagnostic";
     public static final String MAIN_UNAUTHENTICATED = "main.unauthenticated";
     public static final String MAIN_STORAGE_RESULT = "main.storage_result";
@@ -47,16 +46,13 @@ public final class Strings {
     public static final String AUTH_OPEN_APPROVAL = "auth.open_approval";
     public static final String AUTH_GET_SESSION = "auth.get_session";
     public static final String AUTH_SHOW_PC_URL = "auth.show_pc_url";
-    public static final String AUTH_IMPORT_CONFIG = "auth.import_config";
     public static final String AUTH_USE_NEW_UA = "auth.use_new_ua";
     public static final String AUTH_WEBVIEW_UNAVAILABLE = "auth.webview_unavailable";
-    public static final String AUTH_CREDENTIALS_MISSING = "auth.credentials_missing";
     public static final String AUTH_GETTING_TOKEN = "auth.getting_token";
     public static final String AUTH_TOKEN_FAILED = "auth.token_failed";
     public static final String AUTH_OPEN_ON_PC = "auth.open_on_pc";
     public static final String AUTH_TOKEN_REQUIRED = "auth.token_required";
     public static final String AUTH_SESSION_FAILED = "auth.session_failed";
-    public static final String AUTH_CONFIG_SESSION_MISSING = "auth.config_session_missing";
     public static final String AUTH_APPROVAL_URL = "auth.approval_url";
     public static final String AUTH_APPROVAL_URL_COPIED = "auth.approval_url_copied";
     public static final String QUEUE_REFRESH = "queue.refresh";
@@ -107,16 +103,7 @@ public final class Strings {
     public static final String ADB_DENIED = "adb.denied";
     public static final String ADB_FAILED = "adb.failed";
     public static final String ADB_NONE_FOUND = "adb.none_found";
-    public static final String CRED_TITLE = "cred.title";
-    public static final String CRED_HELP = "cred.help";
-    public static final String CRED_API_KEY = "cred.api_key";
-    public static final String CRED_API_SECRET = "cred.api_secret";
-    public static final String CRED_SOURCE = "cred.source";
-    public static final String CRED_SHOW_SECRET = "cred.show_secret";
-    public static final String CRED_SAVE = "cred.save";
     public static final String CRED_AUTH = "cred.auth";
-    public static final String CRED_EMPTY = "cred.empty";
-    public static final String CRED_SAVED = "cred.saved";
     public static final String UPDATE_AVAILABLE_TITLE = "update.available_title";
     public static final String UPDATE_REQUIRED_TITLE = "update.required_title";
     public static final String UPDATE_MESSAGE = "update.message";
@@ -130,26 +117,12 @@ public final class Strings {
     public static final String UI_BACK = "ui.back";
     public static final String UI_SETTINGS = "ui.settings";
     public static final String SETUP_TITLE = "setup.title";
-    public static final String SETUP_STEP_KEYS = "setup.step_keys";
     public static final String SETUP_STEP_AUTH = "setup.step_auth";
     public static final String SETUP_STEP_SOURCES = "setup.step_sources";
     public static final String SETUP_REAUTH_NOTICE = "setup.reauth_notice";
     public static final String SETUP_SIGNING_NOTE = "setup.signing_note";
-    public static final String SETUP_HEADING_KEYS = "setup.heading_keys";
     public static final String SETUP_HEADING_AUTH = "setup.heading_auth";
     public static final String SETUP_AUTH_HELP = "setup.auth_help";
-    public static final String SETUP_GET_KEY_AT = "setup.get_key_at";
-    public static final String SETUP_TAB_INPUT = "setup.tab_input";
-    public static final String SETUP_TAB_FILE = "setup.tab_file";
-    public static final String SETUP_KEY_HINT = "setup.key_hint";
-    public static final String SETUP_SAVE_AND_AUTH = "setup.save_and_auth";
-    public static final String SETUP_FILE_HELP = "setup.file_help";
-    public static final String SETUP_FILE_NOTE = "setup.file_note";
-    public static final String SETUP_MAKE_TEMPLATE = "setup.make_template";
-    public static final String SETUP_LOAD_FILE = "setup.load_file";
-    public static final String SETUP_TEMPLATE_CREATED = "setup.template_created";
-    public static final String SETUP_TEMPLATE_EXISTS = "setup.template_exists";
-    public static final String SETUP_FILE_KEYS_MISSING = "setup.file_keys_missing";
     public static final String SETUP_STORAGE_NEEDED = "setup.storage_needed";
     public static final String SETUP_LATER = "setup.later";
     public static final String SETUP_AFTER_KEYS = "setup.after_keys";
@@ -179,12 +152,6 @@ public final class Strings {
     public static final String SET_SEC_ACCOUNT = "settings.sec_account";
     public static final String SET_SEC_SCROBBLE = "settings.sec_scrobble";
     public static final String SET_SEC_VERSION = "settings.sec_version";
-    public static final String SET_API_KEY = "settings.api_key";
-    public static final String SET_KEY_FROM = "settings.key_from";
-    public static final String SET_SOURCE_CONFIG = "settings.source_config";
-    public static final String SET_SOURCE_PREFS = "settings.source_prefs";
-    public static final String SET_SOURCE_BUILTIN = "settings.source_builtin";
-    public static final String SET_SOURCE_NONE = "settings.source_none";
     public static final String SET_AUTHED = "settings.authed";
     public static final String SET_AUTH_INVALID = "settings.auth_invalid";
     public static final String SET_SANITIZE = "settings.sanitize";
@@ -212,7 +179,6 @@ public final class Strings {
         {MAIN_BATTERY_EXEMPTION, "電池最適化から除外", "Exclude from battery optimization", "배터리 최적화에서 제외"},
         {MAIN_BTN_SANITIZE, "サニタイズ設定", "Sanitize settings", "문자열 정리 설정"},
         {MAIN_BTN_ADB, "ADB を有効化", "Enable ADB", "ADB 활성화"},
-        {MAIN_BTN_CREDENTIALS, "API キー", "API key", "API 키"},
         {MAIN_SAVE_DIAGNOSTIC, "診断ダンプを保存", "Save diagnostic dump", "진단 덤프 저장"},
         {MAIN_UNAUTHENTICATED, "未認証", "Not authenticated", "인증되지 않음"},
         {MAIN_STORAGE_RESULT, "ストレージ権限: read={0} write={1}", "Storage permission: read={0} write={1}", "저장소 권한: read={0} write={1}"},
@@ -239,16 +205,13 @@ public final class Strings {
         {AUTH_OPEN_APPROVAL, "承認ページを開く", "Open approval page", "승인 페이지 열기"},
         {AUTH_GET_SESSION, "セッションを取得", "Get session", "세션 가져오기"},
         {AUTH_SHOW_PC_URL, "PC 用 URL を表示", "Show PC URL", "PC용 URL 표시"},
-        {AUTH_IMPORT_CONFIG, "設定ファイルから読込", "Load from configuration file", "설정 파일에서 불러오기"},
         {AUTH_USE_NEW_UA, "新しいブラウザ UA を使用", "Use a newer browser UA", "새 브라우저 UA 사용"},
         {AUTH_WEBVIEW_UNAVAILABLE, "WebView を利用できません。PC 用 URL を表示して PC で承認してください。", "WebView is unavailable. Show the PC URL and approve on a PC.", "WebView를 사용할 수 없습니다. PC용 URL을 표시해 PC에서 승인하세요."},
-        {AUTH_CREDENTIALS_MISSING, "API key / secret が未設定です。", "API key / secret is not configured.", "API key / secret이 설정되지 않았습니다."},
         {AUTH_GETTING_TOKEN, "トークンを取得しています…", "Getting token…", "토큰을 가져오는 중…"},
         {AUTH_TOKEN_FAILED, "トークン取得失敗: {0}", "Failed to get token: {0}", "토큰 가져오기 실패: {0}"},
         {AUTH_OPEN_ON_PC, "WebView は利用できません。PC で開いてください:\n{0}", "WebView is unavailable. Open this URL on a PC:\n{0}", "WebView를 사용할 수 없습니다. PC에서 다음 URL을 여세요:\n{0}"},
         {AUTH_TOKEN_REQUIRED, "先にトークンを取得してください。", "Get a token first.", "먼저 토큰을 가져오세요."},
         {AUTH_SESSION_FAILED, "セッション取得失敗: {0}", "Failed to get session: {0}", "세션 가져오기 실패: {0}"},
-        {AUTH_CONFIG_SESSION_MISSING, "設定ファイルに session_key がありません。", "The configuration file has no session_key.", "설정 파일에 session_key가 없습니다."},
         {AUTH_APPROVAL_URL, "PC でも開ける承認 URL:\n{0}", "Approval URL (can also be opened on a PC):\n{0}", "PC에서도 열 수 있는 승인 URL:\n{0}"},
         {AUTH_APPROVAL_URL_COPIED, "承認 URL をクリップボードにコピーしました:\n{0}", "Approval URL copied to the clipboard:\n{0}", "승인 URL을 클립보드에 복사했습니다:\n{0}"},
         {QUEUE_REFRESH, "更新", "Refresh", "새로고침"},
@@ -299,16 +262,7 @@ public final class Strings {
         {ADB_DENIED, "起動を拒否されました: {0}", "Launch denied: {0}", "실행 거부됨: {0}"},
         {ADB_FAILED, "起動に失敗しました: {0} ({1})", "Launch failed: {0} ({1})", "실행 실패: {0} ({1})"},
         {ADB_NONE_FOUND, "ADB 設定画面が見つかりません。", "No ADB settings screen was found.", "ADB 설정 화면을 찾을 수 없습니다."},
-        {CRED_TITLE, "API キー", "API key", "API 키"},
-        {CRED_HELP, "Last.fm の API アカウントを作成し、API キーと共有シークレットを入力してください。", "Create a Last.fm API account, then enter its API key and shared secret.", "Last.fm API 계정을 만든 후 API 키와 공유 시크릿을 입력하세요."},
-        {CRED_API_KEY, "API キー", "API key", "API 키"},
-        {CRED_API_SECRET, "API シークレット", "API secret", "API 시크릿"},
-        {CRED_SOURCE, "現在の解決元: {0}", "Current source: {0}", "현재 소스: {0}"},
-        {CRED_SHOW_SECRET, "シークレットを表示", "Show secret", "시크릿 표시"},
-        {CRED_SAVE, "保存", "Save", "저장"},
         {CRED_AUTH, "Last.fm 認証へ進む", "Continue to Last.fm authentication", "Last.fm 인증으로 계속"},
-        {CRED_EMPTY, "API キーと API シークレットの両方を入力してください。", "Enter both the API key and API secret.", "API 키와 API 시크릿을 모두 입력하세요."},
-        {CRED_SAVED, "API キーと API シークレットを保存しました。", "API key and secret saved.", "API 키와 API 시크릿을 저장했습니다."},
         {UPDATE_AVAILABLE_TITLE, "更新があります", "Update available", "업데이트가 있습니다"},
         {UPDATE_REQUIRED_TITLE, "更新が必要です", "Update required", "업데이트가 필요합니다"},
         {UPDATE_MESSAGE, "バージョン {0} が利用できます。\n{1}", "Version {0} is available.\n{1}", "버전 {0}을 사용할 수 있습니다.\n{1}"},
@@ -322,24 +276,10 @@ public final class Strings {
         {UI_BACK, "‹ 戻る", "‹ Back", "‹ 뒤로"},
         {UI_SETTINGS, "設定", "Settings", "설정"},
         {SETUP_TITLE, "セットアップ", "Setup", "초기 설정"},
-        {SETUP_STEP_KEYS, "1 Last.fm キー", "1 Last.fm key", "1 Last.fm 키"},
         {SETUP_STEP_AUTH, "1 認証", "1 Authorize", "1 인증"},
         {SETUP_STEP_SOURCES, "2 ソース", "2 Sources", "2 소스"},
-        {SETUP_HEADING_KEYS, "まず Last.fm の API キーを設定します", "First, set up your Last.fm API key", "먼저 Last.fm API 키를 설정합니다"},
         {SETUP_HEADING_AUTH, "Last.fm で認証します", "Authorize AKScrobble on Last.fm", "Last.fm에서 인증합니다"},
         {SETUP_AUTH_HELP, "Last.fm の承認ページで AKScrobble を許可してください。API キーの用意は不要です。", "Allow AKScrobble on the Last.fm approval page. You do not need your own API key.", "Last.fm 승인 페이지에서 AKScrobble을 허용하세요. API 키를 따로 준비할 필요가 없습니다."},
-        {SETUP_GET_KEY_AT, "取得先: {0}", "Get one at: {0}", "발급처: {0}"},
-        {SETUP_TAB_INPUT, "アプリで入力", "Type in app", "앱에서 입력"},
-        {SETUP_TAB_FILE, "ファイルを置く", "Use a file", "파일 배치"},
-        {SETUP_KEY_HINT, "32 桁の英数字", "32 letters and digits", "32자리 영숫자"},
-        {SETUP_SAVE_AND_AUTH, "保存して認証へ", "Save and authorize", "저장하고 인증"},
-        {SETUP_FILE_HELP, "本体の次の場所に config.properties を置いて、読み込みを押します。キーの入力は不要です。", "Put config.properties at the path below, then tap Load file. No typing needed.", "아래 위치에 config.properties를 두고 불러오기를 누르세요. 키를 입력할 필요가 없습니다."},
-        {SETUP_FILE_NOTE, "api_key / api_secret を書いたファイルです。無ければテンプレートを作れます。", "The file holds api_key / api_secret. You can create a template if it is missing.", "api_key / api_secret을 적은 파일입니다. 없으면 템플릿을 만들 수 있습니다."},
-        {SETUP_MAKE_TEMPLATE, "テンプレートを作る", "Create template", "템플릿 만들기"},
-        {SETUP_LOAD_FILE, "ファイルを読み込む", "Load file", "파일 불러오기"},
-        {SETUP_TEMPLATE_CREATED, "テンプレートを作成しました: {0}", "Template created: {0}", "템플릿을 만들었습니다: {0}"},
-        {SETUP_TEMPLATE_EXISTS, "ファイルは既にあります: {0}", "The file already exists: {0}", "파일이 이미 있습니다: {0}"},
-        {SETUP_FILE_KEYS_MISSING, "ファイルに api_key と api_secret が見つかりません。", "api_key and api_secret were not found in the file.", "파일에서 api_key와 api_secret을 찾을 수 없습니다."},
         {SETUP_STORAGE_NEEDED, "ファイルを扱うにはストレージ権限が必要です。", "Storage permission is required to use the file.", "파일을 사용하려면 저장소 권한이 필요합니다."},
         {SETUP_LATER, "あとで(ホームへ)", "Later (go to home)", "나중에 (홈으로)"},
         {SETUP_AFTER_KEYS, "認証後", "After authorization", "인증 후"},
@@ -371,12 +311,6 @@ public final class Strings {
         {SET_SEC_ACCOUNT, "アカウント", "Account", "계정"},
         {SET_SEC_SCROBBLE, "スクロブル", "Scrobbling", "스크로블"},
         {SET_SEC_VERSION, "バージョン", "Version", "버전"},
-        {SET_API_KEY, "Last.fm API キー", "Last.fm API key", "Last.fm API 키"},
-        {SET_KEY_FROM, "{0} から取得", "From {0}", "{0}에서 가져옴"},
-        {SET_SOURCE_CONFIG, "設定ファイル", "the configuration file", "설정 파일"},
-        {SET_SOURCE_PREFS, "アプリ内の設定", "in-app settings", "앱 내 설정"},
-        {SET_SOURCE_BUILTIN, "組み込みのキー", "the built-in key", "내장 키"},
-        {SET_SOURCE_NONE, "未設定", "Not set", "설정 안 됨"},
         {SET_AUTHED, "認証済み ({0})", "Authorized ({0})", "인증됨 ({0})"},
         {SET_AUTH_INVALID, "再認証が必要です", "Authorization needed again", "다시 인증해야 합니다"},
         {SET_SANITIZE, "タイトルの整形(サニタイズ)", "Title cleanup (sanitize)", "제목 정리 (문자열 정리)"},
