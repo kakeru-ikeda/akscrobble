@@ -18,7 +18,7 @@ The app uses the package name `fm.last.android` to satisfy the device firmware's
 installation restrictions. See [Known limitations](#known-limitations) for the
 consequences.
 
-| Home screen | API key settings | Enable ADB |
+| Home screen | Title cleanup settings | Enable ADB |
 |---|---|---|
 | ![Home screen](docs/images/main.png) | ![Title cleanup settings](docs/images/sanitize.png) | ![Enable ADB](docs/images/adb.png) |
 
@@ -50,9 +50,6 @@ Qobuz does not provide `ALBUM_ARTIST`, so tracks are sent without an album artis
 ## What you need
 
 - A Last.fm account
-- A Last.fm API key and secret, available from the [API account creation
-  page](https://www.last.fm/api/account/create). Leave **Callback URL** and
-  **Application homepage** empty; AKScrobble does not use them.
 - A computer that can connect to the player over MTP
 
 `adb` is needed for only one battery-optimization command. All other setup is
@@ -89,32 +86,12 @@ For the Astell&Kern firmware, follow all of the steps below.
 4. On the player, open Open APP Service and install AKScrobble from the list.
    Open APP Service installs at most four applications; if the device has already
    reached that limit, uninstall one before installing AKScrobble.
-5. Launch AKScrobble. Setup opens automatically when API keys are not configured.
+5. Launch AKScrobble. The setup screen opens automatically.
 6. Grant storage permission. AKScrobble needs it to retrieve AK Music album
    names from MediaStore.
-7. Create a Last.fm API account and give AKScrobble the credentials. On first
-   launch, the Setup screen opens. Choose **Use a file**, then create or edit
-   `/sdcard/AKScrobble/config.properties` over MTP and fill in the two values:
-
-   ```properties
-   api_key=your_api_key_here
-   api_secret=your_api_secret_here
-   ```
-
-   Leave `session_key` empty; the app obtains and stores it during
-   authentication. Tap **Load file** to continue to Last.fm authentication.
-   Values in this file take precedence over anything entered in the app.
-
-   To enter credentials on the player instead, choose **Type in app**, paste
-   both values, and tap **Save and authorize**. The app proceeds to Last.fm
-   authentication when the keys are ready. Later, open **Last.fm authentication**
-   from Settings to authenticate again. For troubleshooting, open **Detailed
-   status** in Settings to see the current status snapshot.
-
-   ![API key screen](docs/images/credentials.png)
-
-8. Approve access on Last.fm when the authentication screen opens. After
-   authorization, the app opens Home.
+7. In Setup, tap Continue to Last.fm. Approve access on the Last.fm page;
+   AKScrobble returns to Setup when authorization is complete.
+8. Choose the source apps you want to scrobble, then finish setup to open Home.
 9. Turn on **Scrobbling** on Home. AK Music, Apple Music, and Qobuz each have an
    individual switch and status. Status shows whether a source is Stopped, Not installed, Disabled, Connected,
    Connecting, or Not connected (will retry). Sources are enabled by default.
@@ -132,6 +109,10 @@ player. That installation path is disabled, so it always ends with a package
 parsing error; use the Open APP Service `.xapk` procedure above. This applies
 only to the Astell&Kern firmware, not to full Android firmware.
 
+## Updating from an older version
+
+The first launch after updating requires Last.fm authorization again. Unsent scrobbles are kept and sent after you reauthorize. Saved API keys and secrets are removed. If storage permission is granted, the `api_key`, `api_secret`, and `session_key` lines are also removed automatically from `/sdcard/AKScrobble/config.properties`. Other lines are kept; if no meaningful content remains, the file is deleted.
+
 ## Self-updates
 
 AKScrobble checks the update server for updates when it starts. If you accept an update,
@@ -140,6 +121,15 @@ Self-updates are unlikely to work on AK firmware. If they fail, follow the
 in-app instructions to download the `.xapk` from Releases and install it with
 Open APP Service. The first version with self-update support must be installed
 manually using the `.xapk` procedure above.
+
+## About the signing service
+
+The developer-operated [scrobsign](https://scrobsign.sukisuki.club) service
+signs Last.fm requests (`api_sig`). Scrobble submissions go directly from the
+player to Last.fm. To create a signature, scrobsign receives the session key
+(`sk`) and track metadata such as artist, title, album, and playback time; it
+does not store them. If the signing service is unavailable, a banner appears
+on Home and unsent scrobbles are kept in the queue.
 
 ## Sanitize rules
 
@@ -219,14 +209,10 @@ firmware, the `.apk` installs normally from a file explorer.
 
 ### Last.fm authentication fails
 
-Open **Last.fm API key** in Settings and check the source line shown for each field. Credentials are
-resolved field by field in this order: `config`, `prefs`, then `builtin`. A
-non-empty `api_key` or `api_secret` in
-`/storage/emulated/0/AKScrobble/config.properties` overrides a value entered in
-the app. If a saved value seems to have no effect, use the source line to confirm
-this, then empty or remove the corresponding property in that file and retry
-authentication. Also confirm that both credentials belong to the same Last.fm
-API account.
+If the Home banner says Signing service unavailable, wait and try again
+later; unsent scrobbles remain queued. If it says Last.fm service problem,
+wait for Last.fm to recover. If either banner persists, report it in the
+[issue tracker](https://github.com/kakeru-ikeda/akscrobble/issues).
 
 ### Tracks are not scrobbled
 
@@ -237,7 +223,7 @@ that you are using a supported player and restart the service.
 
 For a fuller snapshot, open Settings and tap **Save diagnostic dump**. AKScrobble writes
 `/storage/emulated/0/AKScrobble/diag-*.txt` containing `STATUS`, `PREFS`, `QUEUE`,
-and `DEVICE` sections. The `session_key` and `api_secret` values in `PREFS` are
+and `DEVICE` sections. The `session_key` and `session_api_key` values in `PREFS` are
 masked as `***`; review the file before attaching it to an issue.
 
 ### Queue entries become dead
@@ -278,10 +264,6 @@ The build does not use Gradle or Android Studio. Its scripts invoke `aapt2`,
 resources in `scrobbler/res` are compiled with `aapt2`. APKs are signed with v1
 and v2 signatures only because the AK firmware does not accept v3 signatures.
 
-To embed API credentials in a local build, copy `build/secrets.env.example` to
-`build/secrets.env` and fill in the values. Release builds deliberately bypass
-that file and do not embed the API key or secret.
-
 ## Known limitations
 
 - The package name `fm.last.android` is borrowed because the AK firmware's
@@ -290,8 +272,7 @@ that file and do not embed the API key or secret.
 - An APK signed with a different key cannot update an existing installation; the
   old installation must be uninstalled once before installing it. Uninstalling
   clears more than the app itself, as measured on an SP2000T:
-  - The Last.fm session is lost, so authentication has to be repeated. The
-    `api_key` and `api_secret` survive if they are in `config.properties`.
+  - The Last.fm session is lost, so authentication has to be repeated.
   - The device drops the package from its doze whitelist, so
     `adb shell dumpsys deviceidle whitelist +fm.last.android` has to be run
     again.
@@ -300,12 +281,6 @@ that file and do not embed the API key or secret.
 - AK Music, Apple Music, and Qobuz are currently supported.
 - `ScrobbleDb.onUpgrade` drops its tables, so an update that changes the database
   schema erases any unsent queue entries.
-- `/storage/emulated/0/AKScrobble/config.properties` lives in shared storage, so
-  any app holding `READ_EXTERNAL_STORAGE` can read it. The installation steps
-  recommend it because typing a 32-character key on the player is impractical,
-  but the `api_secret` does sit in the clear there. If that matters to you, leave
-  the file's values empty and enter the credentials in the app instead; they are
-  then kept in the app's private preferences.
 
 ## License and disclaimer
 

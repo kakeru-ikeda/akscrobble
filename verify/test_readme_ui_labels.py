@@ -28,18 +28,6 @@ ALLOWED = {
     "No root is required.",
     "root は不要です。",
     "root 권한이 필요하지 않습니다.",
-    # last.fm の API アカウント作成フォームの項目名（AKScrobble の UI ではない）
-    "Callback URL",
-    "Application homepage",
-    # 認証情報の渡し方を 2 通り示す小見出しと、その中の強調
-    "Recommended: the configuration file.",
-    "Alternative: type them in the app.",
-    "推奨: 設定ファイル。",
-    "代替: アプリ内で入力する。",
-    "設定ファイルの方が圧倒的に楽です",
-    "권장: 설정 파일.",
-    "대체: 앱에서 직접 입력.",
-    "설정 파일이 훨씬 편합니다",
 }
 COLUMN = {"README.md": 1, "README.ja.md": 0, "README.ko.md": 2}
 
