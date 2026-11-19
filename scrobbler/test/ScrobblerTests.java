@@ -33,11 +33,14 @@ public final class ScrobblerTests {
         QueuePolicyTests.run();
         BackoffTests.run();
         ConfigTests.run();
+        LegacyConfigTests.run();
         SourcesTests.run();
         LaunchRouteTests.run();
         UpdateManifestTests.run();
         UpdateDecisionTests.run();
         Sha256SinkTests.run();
+        ScrobsignTests.run();
+        LastfmCallTests.run();
         System.exit(TestKit.finish());
     }
 

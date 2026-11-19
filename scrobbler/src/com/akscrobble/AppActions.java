@@ -33,9 +33,12 @@ public final class AppActions {
         try {
             Map<String, String> values = new ConfigStore(context).load();
             Prefs prefs = new Prefs(context);
-            copy(values, "api_key", Prefs.API_KEY, prefs);
-            copy(values, "api_secret", Prefs.API_SECRET, prefs);
-            copy(values, "session_key", Prefs.SESSION_KEY, prefs);
+            String session = clean(values.get("session_key"));
+            String sessionApiKey = clean(values.get("session_api_key"));
+            if (session.length() > 0 && sessionApiKey.length() > 0) {
+                prefs.putString(Prefs.SESSION_KEY, session);
+                prefs.putString(Prefs.SESSION_API_KEY, sessionApiKey);
+            }
             copy(values, "user_name", Prefs.USER_NAME, prefs);
             String sanitize = values.get("sanitize");
             if (sanitize != null && sanitize.trim().length() > 0)
@@ -119,10 +122,11 @@ public final class AppActions {
             for (Map.Entry<String, ?> entry : all.getAll().entrySet()) {
                 String key = entry.getKey();
                 // 診断ダンプは issue に添付させる想定なので、秘密は全て伏せる。
-                // api_key もユーザー自身が取得した資格情報なので伏せる
-                // （どこから解決されたかは api_key source 行で分かる）。
-                Object value = Prefs.SESSION_KEY.equals(key) || Prefs.API_SECRET.equals(key)
-                        || Prefs.API_KEY.equals(key) ? "***" : entry.getValue();
+                // session values and legacy credentials can contain secrets.
+                Object value = Prefs.SESSION_KEY.equals(key)
+                        || Prefs.SESSION_API_KEY.equals(key)
+                        || Prefs.LEGACY_API_KEY.equals(key)
+                        || Prefs.LEGACY_API_SECRET.equals(key) ? "***" : entry.getValue();
                 // sanitize_config は改行と区切り文字を含む。1 pref = 1 行を保って
                 // 診断ダンプを読める形に留める。
                 text.append(key).append('=').append(oneLine(value)).append('\n');
@@ -171,10 +175,6 @@ public final class AppActions {
         }
     }
 
-    public static String apiKeySource(Context context) {
-        return ConfigStore.credentials(context).source("api_key");
-    }
-
     public static void showUpdatePrompt(final Activity activity, UpdateDecision decision,
             final UpdateManifest manifest) {
         if (activity.isFinishing() || activity.isDestroyed()) return;
@@ -209,6 +209,8 @@ public final class AppActions {
         String value = source.get(key);
         if (value != null && value.trim().length() > 0) prefs.putString(pref, value.trim());
     }
+
+    private static String clean(String value) { return value == null ? "" : value.trim(); }
 
     private static String oneLine(Object value) {
         return String.valueOf(value)

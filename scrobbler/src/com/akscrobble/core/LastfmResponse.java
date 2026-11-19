@@ -21,10 +21,23 @@ public final class LastfmResponse {
     public final String sessionName;
     public final String token;
     public final boolean transportError;
+    public final String apiKey;
+    public final SignResult.Kind signerKind;
+    public final String signerErrorCode;
+    public final List<Integer> signerInvalidIndices;
 
     private LastfmResponse(String status, int errorCode, String errorMessage,
             int accepted, int ignored, List<Integer> ignoredCodes, String sessionKey,
             String sessionName, String token, boolean transportError) {
+        this(status, errorCode, errorMessage, accepted, ignored, ignoredCodes, sessionKey,
+                sessionName, token, transportError, null, null, null,
+                Collections.<Integer>emptyList());
+    }
+
+    private LastfmResponse(String status, int errorCode, String errorMessage,
+            int accepted, int ignored, List<Integer> ignoredCodes, String sessionKey,
+            String sessionName, String token, boolean transportError, String apiKey,
+            SignResult.Kind signerKind, String signerErrorCode, List<Integer> signerInvalidIndices) {
         this.status = status;
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
@@ -35,6 +48,11 @@ public final class LastfmResponse {
         this.sessionName = sessionName;
         this.token = token;
         this.transportError = transportError;
+        this.apiKey = apiKey;
+        this.signerKind = signerKind;
+        this.signerErrorCode = signerErrorCode;
+        this.signerInvalidIndices = Collections.unmodifiableList(
+                new ArrayList<Integer>(signerInvalidIndices));
     }
 
     public static LastfmResponse parse(String xml) {
@@ -84,16 +102,44 @@ public final class LastfmResponse {
                 Collections.<Integer>emptyList(), null, null, null, true);
     }
 
+    public LastfmResponse withApiKey(String apiKey) {
+        return new LastfmResponse(status, errorCode, errorMessage, accepted, ignored, ignoredCodes,
+                sessionKey, sessionName, token, transportError, apiKey, signerKind,
+                signerErrorCode, signerInvalidIndices);
+    }
+
+    public static LastfmResponse signerFailure(SignResult result) {
+        if (result == null) throw new IllegalArgumentException("result is null");
+        return new LastfmResponse("failed", 0, "signing service: " + result.errorCode,
+                0, 0, Collections.<Integer>emptyList(), null, null, null, false,
+                null, result.kind, result.errorCode, result.invalidIndices());
+    }
+
+    public static LastfmResponse sessionMismatch() {
+        return new LastfmResponse("failed", 9, "Session belongs to a different API key",
+                0, 0, Collections.<Integer>emptyList(), null, null, null, false);
+    }
+
+    public boolean isSignerFailure() { return signerKind != null; }
+
     public boolean isOk() { return "ok".equalsIgnoreCase(status) && !transportError; }
 
     public boolean isAuthFailure() {
-        return !isOk() && (errorCode == 4 || errorCode == 9 || errorCode == 10
-                || errorCode == 13 || errorCode == 26);
+        return !isOk() && !transportError && signerKind == null
+                && (errorCode == 4 || errorCode == 9);
+    }
+
+    public boolean isServiceProblem() {
+        return !isOk() && signerKind == null && (errorCode == 10 || errorCode == 26);
     }
 
     public boolean isRetryable() {
         return !isOk() && (transportError || errorCode == 8 || errorCode == 11
-                || errorCode == 16 || errorCode == 29);
+                || errorCode == 13 || errorCode == 16 || errorCode == 29
+                || signerKind == SignResult.Kind.RETRYABLE
+                || signerKind == SignResult.Kind.REJECTED
+                || (signerKind == SignResult.Kind.INVALID_PARAMS
+                        && signerInvalidIndices.isEmpty()));
     }
 
     public boolean isPermanent() { return !isOk() && !isRetryable(); }

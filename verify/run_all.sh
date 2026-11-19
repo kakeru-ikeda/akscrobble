@@ -33,9 +33,9 @@ echo "== 3/4 XAPK packs and satisfies constraints =="
 # 検証ゲートはリリース鍵を必要としない。make_release.sh はリリース署名鍵の
 # 明示指定を要求するので、ここでは同じ経路（build_scrobbler + build_split +
 # pack_xapk のパラメータ）を開発鍵で組み立てて検査する。
-AKS_SKIP_SECRETS=1 ./build/build_scrobbler.sh \
+./build/build_scrobbler.sh \
     fm.last.android 1 artifacts/verify/base.apk 0.0.0-verify >/dev/null
-AKS_SKIP_SECRETS=1 ./build/build_split.sh \
+./build/build_split.sh \
     fm.last.android 1 config.xxhdpi artifacts/verify/split-xxhdpi.apk 0 0.0.0-verify >/dev/null
 python3 - <<'PACK'
 import sys

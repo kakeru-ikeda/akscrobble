@@ -1,6 +1,5 @@
 import com.akscrobble.core.LastfmRequest;
 import com.akscrobble.core.LastfmResponse;
-import com.akscrobble.core.LastfmSig;
 import com.akscrobble.core.PendingScrobble;
 import com.akscrobble.core.TrackInfo;
 import java.util.ArrayList;
@@ -10,31 +9,17 @@ import java.util.TreeMap;
 public final class LastfmTests {
     static void run() {
         TestKit.section("Last.fm protocol");
-        TestKit.eq("MD5 known vector", "098f6bcd4621d373cade4e832627b4f6",
-                LastfmSig.hexMd5("test"));
-
-        TreeMap<String, String> sigParams = new TreeMap<String, String>();
-        sigParams.put("b", "2");
-        sigParams.put("a", "1");
-        sigParams.put("format", "json");
-        sigParams.put("callback", "cb");
-        sigParams.put("api_sig", "old");
-        TestKit.eq("signature sorts and excludes control keys",
-                LastfmSig.hexMd5("a1b2secret"), LastfmSig.sign(sigParams, "secret"));
-        TestKit.eq("UTF-8 signature is stable", LastfmSig.sign(single("track", "日本語"), "秘密"),
-                LastfmSig.sign(single("track", "日本語"), "秘密"));
-
         List<PendingScrobble> items = new ArrayList<PendingScrobble>();
         items.add(pending("Artist 0", "曲名", null, 216000L, 0, 100L));
         items.add(pending("Artist 1", "Track 1", "Album", 0L, 2, 200L));
-        TreeMap<String, String> batch = LastfmRequest.scrobbleBatch(items, "key", "session");
+        TreeMap<String, String> batch = LastfmRequest.scrobbleBatch(items, "fakeSession1");
         TestKit.eq("batch starts at index zero", "Artist 0", batch.get("artist[0]"));
         TestKit.eq("batch indices are consecutive", "Artist 1", batch.get("artist[1]"));
         TestKit.eq("duration uses seconds", "216", batch.get("duration[0]"));
         TestKit.check("null album is omitted", !batch.containsKey("album[0]"));
         TestKit.check("zero duration is omitted", !batch.containsKey("duration[1]"));
-        String body = LastfmRequest.signedBody(batch, "secret");
-        TestKit.check("body contains signature", body.contains("api_sig="));
+        String body = LastfmRequest.formBody(batch);
+        TestKit.check("form body omits signature", !body.contains("api_sig="));
         TestKit.check("body percent-encodes Japanese", body.contains("%E6%9B%B2%E5%90%8D"));
 
         LastfmResponse ok = LastfmResponse.parse(
@@ -67,6 +52,21 @@ public final class LastfmTests {
         TestKit.eq("code 29 is retryable", Boolean.TRUE, Boolean.valueOf(
                 LastfmResponse.parse("<lfm status=\"failed\"><error code=\"29\">rate</error></lfm>")
                         .isRetryable()));
+        TestKit.eq("code 13 is retryable", Boolean.TRUE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"13\">try again</error></lfm>")
+                        .isRetryable()));
+        TestKit.eq("code 4 is auth failure", Boolean.TRUE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"4\">bad token</error></lfm>")
+                        .isAuthFailure()));
+        TestKit.eq("code 10 is not auth failure", Boolean.FALSE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"10\">service</error></lfm>")
+                        .isAuthFailure()));
+        TestKit.eq("code 10 is service problem", Boolean.TRUE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"10\">service</error></lfm>")
+                        .isServiceProblem()));
+        TestKit.eq("code 26 is service problem", Boolean.TRUE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"26\">service</error></lfm>")
+                        .isServiceProblem()));
         TestKit.eq("code 6 is permanent", Boolean.TRUE, Boolean.valueOf(
                 LastfmResponse.parse("<lfm status=\"failed\"><error code=\"6\">params</error></lfm>")
                         .isPermanent()));
@@ -85,12 +85,6 @@ public final class LastfmTests {
         TestKit.check("broken XML becomes failure", !LastfmResponse.parse("<lfm").isOk());
         TestKit.check("empty XML becomes failure", !LastfmResponse.parse("").isOk());
         TestKit.check("transport failures retry", LastfmResponse.transportError("offline").isRetryable());
-    }
-
-    private static TreeMap<String, String> single(String key, String value) {
-        TreeMap<String, String> map = new TreeMap<String, String>();
-        map.put(key, value);
-        return map;
     }
 
     private static PendingScrobble pending(String artist, String track, String album,

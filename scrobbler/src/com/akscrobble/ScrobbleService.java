@@ -87,6 +87,7 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
     @Override
     public void onCreate() {
         super.onCreate();
+        LegacyMigration.run(this);
         startForeground(Const.NOTIF_ID, Notifications.build(this,
                 Ui.s(this, Strings.NOTIF_TITLE), Ui.s(this, Strings.NOTIF_STARTING)));
         StatusBus.serviceStartedElapsed = SystemClock.elapsedRealtime();
@@ -211,8 +212,10 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
             NetThread.post(new Runnable() {
                 @Override public void run() {
                     Credentials creds = ConfigStore.credentials(ScrobbleService.this);
-                    new LastfmClient(creds.apiKey, creds.apiSecret, creds.sessionKey)
-                            .updateNowPlaying(outgoing);
+                    if (creds.isComplete()) {
+                        new LastfmClient(ScrobbleService.this,
+                                creds.sessionKey, creds.sessionApiKey).updateNowPlaying(outgoing);
+                    }
                 }
             });
         }

@@ -19,7 +19,7 @@ Android 9을 실행하는 A&ultima SP2000T와 SP3000 시리즈에서 작동을 �
 이 앱은 기기 펌웨어의 설치 제한을 충족하기 위해 패키지 이름 `fm.last.android`를
 사용합니다. 이에 따른 영향은 [알려진 제한 사항](#알려진-제한-사항)을 참조하세요.
 
-| 홈 화면 | API 키 설정 | ADB 활성화 |
+| 홈 화면 | 제목 정리 설정 | ADB 활성화 |
 |---|---|---|
 | ![홈 화면](docs/images/main.png) | ![제목 정리 설정](docs/images/sanitize.png) | ![ADB 활성화](docs/images/adb.png) |
 
@@ -50,9 +50,6 @@ Qobuz는 `ALBUM_ARTIST`를 제공하지 않으므로 앨범 아티스트 없이 
 ## 준비물
 
 - Last.fm 계정
-- [API 계정 생성 페이지](https://www.last.fm/api/account/create)에서 발급받은
-  Last.fm API 키와 secret. **Callback URL**과 **Application homepage**는 비워 두어도
-  됩니다. AKScrobble은 둘 다 사용하지 않습니다
 - MTP로 플레이어에 연결할 수 있는 컴퓨터
 
 `adb`는 배터리 최적화 명령 하나에만 필요합니다. 그 밖의 설정은 모두 플레이어에서
@@ -85,29 +82,12 @@ Astell&Kern 펌웨어라면 아래 단계를 모두 따르세요.
 4. 플레이어에서 OpenService를 열고 목록에서 AKScrobble을 설치합니다.
    OpenService로 설치할 수 있는 앱은 최대 4개입니다. 이미 4개가 설치되어 있다면
    하나를 제거한 뒤 AKScrobble을 설치하세요.
-5. AKScrobble을 실행합니다. API 키가 설정되지 않았으면 설정 화면이 자동으로 열립니다.
+5. AKScrobble을 실행합니다. 설정 화면이 자동으로 열립니다.
 6. 저장소 권한을 허용합니다. AKScrobble이 MediaStore에서 AK Music 앨범 이름을
    가져오는 데 필요합니다.
-7. Last.fm API 계정을 만들고 자격 증명을 AKScrobble에 전달합니다. 처음 실행하면
-   설정 화면이 열립니다. **파일 배치**를 선택하고 MTP로
-   `/sdcard/AKScrobble/config.properties`를 만들거나 편집해 두 값을 입력하세요.
-
-   ```properties
-   api_key=발급받은 api_key
-   api_secret=발급받은 api_secret
-   ```
-
-   `session_key`는 비워 두세요(인증 과정에서 앱이 받아 저장합니다). **파일 불러오기**를
-   누르면 Last.fm 인증으로 이동합니다. 파일의 값은 앱에서 입력한 값보다 우선합니다.
-
-   플레이어에서 직접 입력하려면 **앱에서 입력**을 선택하고 두 값을 붙여 넣은 뒤
-   **저장하고 인증**을 누르세요. 키를 모두 입력하면 Last.fm 인증 화면으로 이동합니다.
-   나중에 다시 인증하려면 설정의 **Last.fm 인증**을 여세요. 문제 해결 정보는 설정의
-   **상세 상태**에서 확인할 수 있습니다.
-
-   ![API 키 화면](docs/images/credentials.png)
-
-8. 인증 화면이 열리면 Last.fm에서 접근을 승인합니다. 인증이 끝나면 홈 화면으로 이동합니다.
+7. 설정에서 Last.fm 인증으로 진행을 누릅니다. Last.fm 페이지에서 접근을 승인하면
+   인증이 끝난 뒤 AKScrobble 설정으로 돌아옵니다.
+8. 스크로블할 소스 앱을 선택하고 설정을 완료해 홈 화면으로 이동합니다.
 9. 홈에서 **스크로블 중** 스위치를 켭니다. AK Music, Apple Music, Qobuz마다 개별 스위치와
    상태 표시가 있습니다. 상태는 중지됨, 설치되지 않음, 비활성, 연결됨, 연결하는 중,
    연결 안 됨 (재시도 대기)를 나타냅니다. 각 소스는 기본적으로 활성화되어 있습니다.
@@ -125,12 +105,27 @@ Astell&Kern 펌웨어에서는 플레이어에서 `.apk`를 직접 열지 마세
 `.xapk` 절차를 사용하세요. 이는 Astell&Kern 펌웨어에만 해당하며 풀 Android
 펌웨어에는 적용되지 않습니다.
 
+## 이전 버전에서 업데이트
+
+업데이트 후 처음 실행할 때 Last.fm 재인증이 필요합니다. 전송하지 않은 스크로블은 보존되며 재인증 후 전송됩니다.
+저장된 API 키와 secret은 삭제됩니다. 저장소 권한이 있으면 `/sdcard/AKScrobble/config.properties`의
+`api_key`, `api_secret`, `session_key` 행도 자동으로 삭제됩니다. 다른 행은 남고, 의미 있는 내용이
+남지 않으면 파일 전체를 삭제합니다.
+
 ## 자동 업데이트
 
 AKScrobble은 시작할 때 업데이트 서버에서 업데이트를 확인합니다. 업데이트를 수락하면 APK 서명과
 SHA-256을 확인한 뒤 다운로드하고 설치합니다. AK 펌웨어에서는 자동 업데이트가 작동하지 않을
 가능성이 높습니다. 실패하면 앱 안내에 따라 Releases에서 `.xapk`를 다운로드해 Open APP Service로
 설치하세요. 자동 업데이트를 지원하는 첫 버전은 위 절차에 따라 수동으로 설치해야 합니다.
+
+## 서명 서비스에 대하여
+
+개발자가 운영하는 [scrobsign](https://scrobsign.sukisuki.club)이 Last.fm 요청의 서명
+(`api_sig`)을 처리합니다. 스크로블 전송은 기기에서 Last.fm으로 직접 이뤄집니다.
+서명을 위해 scrobsign은 session key(`sk`)와 아티스트, 곡명, 앨범, 재생 시각 등의 곡 메타데이터를
+받지만 저장하지 않습니다. 서명 서비스를 사용할 수 없으면 홈에 배너가 표시되고 전송하지 않은
+스크로블은 대기열에 보존됩니다.
 
 ## 문자열 정리 규칙
 
@@ -205,11 +200,10 @@ OpenService를 통해 설치하세요. 풀 Android 펌웨어에서는 `.apk`를 
 
 ### Last.fm 인증 실패
 
-설정에서 **Last.fm API 키**를 열고 각 필드에 표시된 출처 줄을 확인하세요. 자격 증명은 필드마다 `config`,
-`prefs`, `builtin` 순서로 결정됩니다. `/storage/emulated/0/AKScrobble/config.properties`의
-비어 있지 않은 `api_key` 또는 `api_secret`은 앱에서 입력한 값을 덮어씁니다. 저장한 값이
-적용되지 않는 것 같으면 출처 줄로 이를 확인하고 해당 파일의 속성을 비우거나 삭제한 뒤
-인증을 다시 시도하세요. 두 자격 증명이 같은 Last.fm API 계정의 것인지도 확인하세요.
+홈에 “서명 서비스를 사용할 수 없음” 배너가 표시되면 기다렸다가 다시 시도하세요. 전송하지 않은
+스크로블은 대기열에 남습니다. “Last.fm 측 문제” 배너가 표시되면 Last.fm이 복구될 때까지
+기다리세요. 배너가 계속 표시되면 [issue tracker](https://github.com/kakeru-ikeda/akscrobble/issues)에
+보고해 주세요.
 
 ### 트랙이 스크로블되지 않음
 
@@ -219,7 +213,7 @@ OpenService를 통해 설치하세요. 풀 Android 펌웨어에서는 `.apk`를 
 
 더 자세한 상태를 기록하려면 설정에서 **진단 덤프 저장**을 탭하세요. AKScrobble은 `STATUS`, `PREFS`,
 `QUEUE`, `DEVICE` 섹션이 포함된 `/storage/emulated/0/AKScrobble/diag-*.txt`를 기록합니다.
-`PREFS`의 `session_key`와 `api_secret` 값은 `***`로 마스킹됩니다. issue에 첨부하기 전에
+`PREFS`의 `session_key`와 `session_api_key` 값은 `***`로 마스킹됩니다. issue에 첨부하기 전에
 파일을 검토하세요.
 
 ### 대기열 항목이 dead 상태가 됨
@@ -262,10 +256,6 @@ export AKS_KS_PASS='<릴리스 키스토어 비밀번호>'
 `aapt2`로 컴파일합니다. AK 펌웨어는
 v3 서명을 허용하지 않으므로 APK는 v1과 v2 서명만 사용합니다.
 
-로컬 빌드에 API 자격 증명을 포함하려면 `build/secrets.env.example`을
-`build/secrets.env`로 복사하고 값을 입력하세요. 릴리스 빌드는 의도적으로 이 파일을
-우회하며 API 키나 secret을 포함하지 않습니다.
-
 ## 알려진 제한 사항
 
 - AK 펌웨어의 설치 허용 목록에는 등록된 패키지 이름만 허용되므로 패키지 이름
@@ -273,8 +263,7 @@ v3 서명을 허용하지 않으므로 APK는 v1과 v2 서명만 사용합니다
   설치할 수 없습니다.
 - 다른 키로 서명한 APK는 기존 설치를 업데이트할 수 없습니다. 설치 전에 기존 앱을 한 번
   제거해야 합니다. 제거하면 앱 자체보다 많은 것이 사라집니다(SP2000T에서 실측).
-  - Last.fm 세션이 사라져 인증을 다시 해야 합니다. `api_key`와 `api_secret`은
-    `config.properties`에 있으면 유지됩니다.
+  - Last.fm 세션이 사라져 인증을 다시 해야 합니다.
   - 기기의 doze 화이트리스트에서 패키지가 빠지므로
     `adb shell dumpsys deviceidle whitelist +fm.last.android`를 다시 실행해야
     합니다.
@@ -283,11 +272,6 @@ v3 서명을 허용하지 않으므로 APK는 v1과 v2 서명만 사용합니다
 - 현재 AK Music, Apple Music, Qobuz를 지원합니다.
 - `ScrobbleDb.onUpgrade`는 테이블을 삭제하므로 데이터베이스 스키마가 변경되는 업데이트는
   전송하지 않은 대기열 항목을 모두 지웁니다.
-- `/storage/emulated/0/AKScrobble/config.properties`는 공유 저장소에 있으므로
-  `READ_EXTERNAL_STORAGE` 권한을 가진 앱이면 읽을 수 있습니다. 32자리 키를 기기에서
-  입력하는 것이 현실적이지 않아 설치 절차에서는 이 파일을 권장하지만, `api_secret`이
-  평문으로 놓이는 것은 사실입니다. 신경 쓰인다면 파일의 값을 비우고 앱에서 직접
-  입력하세요. 그 경우 앱 전용 영역에 저장됩니다.
 
 ## 라이선스 및 면책 조항
 

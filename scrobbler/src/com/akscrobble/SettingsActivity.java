@@ -18,7 +18,6 @@ public final class SettingsActivity extends Activity {
     private static final int REQ_STORAGE = 1401;
 
     private TextView notice;
-    private Ui.Row keyRow;
     private Ui.Row authRow;
     private Ui.Row storageRow;
     private String noticeText = "";
@@ -59,12 +58,6 @@ public final class SettingsActivity extends Activity {
     private void addAccountSection(LinearLayout body) {
         body.addView(Ui.section(this, Ui.s(this, Strings.SET_SEC_ACCOUNT)));
         LinearLayout list = Ui.list(this);
-        keyRow = Ui.row(this, Ui.s(this, Strings.SET_API_KEY),
-                Ui.s(this, Strings.SET_SOURCE_NONE), null, null,
-                new View.OnClickListener() {
-                    @Override public void onClick(View view) { open(CredentialsActivity.class); }
-                });
-        Ui.addRow(list, keyRow.view);
         authRow = Ui.row(this, Ui.s(this, Strings.MAIN_AUTH),
                 Ui.s(this, Strings.MAIN_UNAUTHENTICATED), null, null,
                 new View.OnClickListener() {
@@ -160,17 +153,6 @@ public final class SettingsActivity extends Activity {
     }
 
     private void updateRows() {
-        if (keyRow == null) return;
-        String source = AppActions.apiKeySource(this);
-        String sourceText;
-        if ("config".equals(source)) sourceText = Ui.s(this, Strings.SET_SOURCE_CONFIG);
-        else if ("prefs".equals(source)) sourceText = Ui.s(this, Strings.SET_SOURCE_PREFS);
-        else if ("builtin".equals(source)) sourceText = Ui.s(this, Strings.SET_SOURCE_BUILTIN);
-        else sourceText = Ui.s(this, Strings.SET_SOURCE_NONE);
-        keyRow.subtitle.setVisibility(View.VISIBLE);
-        keyRow.subtitle.setText("none".equals(source)
-                ? sourceText : Ui.s(this, Strings.SET_KEY_FROM, sourceText));
-
         Prefs prefs = new Prefs(this);
         String user = prefs.getString(Prefs.USER_NAME);
         authRow.subtitle.setVisibility(View.VISIBLE);
