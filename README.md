@@ -89,8 +89,10 @@ For the Astell&Kern firmware, follow all of the steps below.
 5. Launch AKScrobble. The setup screen opens automatically.
 6. Grant storage permission. AKScrobble needs it to retrieve AK Music album
    names from MediaStore.
-7. In Setup, tap Continue to Last.fm. Approve access on the Last.fm page;
-   AKScrobble returns to Setup when authorization is complete.
+7. In Setup, tap Continue to Last.fm. On the authentication screen, tap
+   **Copy authorization URL**, paste it into a PC or another browser on the
+   player, and approve access. Return to AKScrobble and tap **Get session**;
+   setup resumes when authorization is complete.
 8. Choose the source apps you want to scrobble, then finish setup to open Home.
 9. Turn on **Scrobbling** on Home. AK Music, Apple Music, and Qobuz each have an
    individual switch and status. Status shows whether a source is Stopped, Not installed, Disabled, Connected,
