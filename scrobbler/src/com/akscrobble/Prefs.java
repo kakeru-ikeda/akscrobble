@@ -7,6 +7,7 @@ import com.akscrobble.core.Sources;
 
 public final class Prefs {
     public static final String SESSION_KEY = "session_key";
+    public static final String SESSION_API_KEY = "session_api_key";
     public static final String USER_NAME = "user_name";
     public static final String API_KEY = "api_key";
     public static final String API_SECRET = "api_secret";
@@ -16,6 +17,8 @@ public final class Prefs {
     public static final String AUTH_INVALID = "auth_invalid";
     /** AUTH_INVALID を立てた時点の認証情報の指紋。異なれば再挑戦してよい。 */
     public static final String AUTH_INVALID_FOR = "auth_invalid_for";
+    public static final String SIGNER_UNAVAILABLE = "signer_unavailable";
+    public static final String SERVICE_PROBLEM = "service_problem";
     public static final String SERVICE_ENABLED = "service_enabled";
     public static final String LANGUAGE = "language";
     public static final String LAST_SENT_AT = "last_sent_at";
@@ -53,6 +56,12 @@ public final class Prefs {
 
     public void putLong(String key, long value) {
         preferences.edit().putLong(key, value).apply();
+    }
+
+    public void remove(String... keys) {
+        SharedPreferences.Editor editor = preferences.edit();
+        for (String key : keys) editor.remove(key);
+        editor.apply();
     }
 
     private Prefs() {

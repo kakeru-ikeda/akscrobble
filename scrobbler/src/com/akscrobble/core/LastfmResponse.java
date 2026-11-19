@@ -125,13 +125,21 @@ public final class LastfmResponse {
     public boolean isOk() { return "ok".equalsIgnoreCase(status) && !transportError; }
 
     public boolean isAuthFailure() {
-        return !isOk() && (errorCode == 4 || errorCode == 9 || errorCode == 10
-                || errorCode == 13 || errorCode == 26);
+        return !isOk() && !transportError && signerKind == null
+                && (errorCode == 4 || errorCode == 9);
+    }
+
+    public boolean isServiceProblem() {
+        return !isOk() && signerKind == null && (errorCode == 10 || errorCode == 26);
     }
 
     public boolean isRetryable() {
         return !isOk() && (transportError || errorCode == 8 || errorCode == 11
-                || errorCode == 16 || errorCode == 29);
+                || errorCode == 13 || errorCode == 16 || errorCode == 29
+                || signerKind == SignResult.Kind.RETRYABLE
+                || signerKind == SignResult.Kind.REJECTED
+                || (signerKind == SignResult.Kind.INVALID_PARAMS
+                        && signerInvalidIndices.isEmpty()));
     }
 
     public boolean isPermanent() { return !isOk() && !isRetryable(); }

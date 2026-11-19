@@ -67,6 +67,21 @@ public final class LastfmTests {
         TestKit.eq("code 29 is retryable", Boolean.TRUE, Boolean.valueOf(
                 LastfmResponse.parse("<lfm status=\"failed\"><error code=\"29\">rate</error></lfm>")
                         .isRetryable()));
+        TestKit.eq("code 13 is retryable", Boolean.TRUE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"13\">try again</error></lfm>")
+                        .isRetryable()));
+        TestKit.eq("code 4 is auth failure", Boolean.TRUE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"4\">bad token</error></lfm>")
+                        .isAuthFailure()));
+        TestKit.eq("code 10 is not auth failure", Boolean.FALSE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"10\">service</error></lfm>")
+                        .isAuthFailure()));
+        TestKit.eq("code 10 is service problem", Boolean.TRUE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"10\">service</error></lfm>")
+                        .isServiceProblem()));
+        TestKit.eq("code 26 is service problem", Boolean.TRUE, Boolean.valueOf(
+                LastfmResponse.parse("<lfm status=\"failed\"><error code=\"26\">service</error></lfm>")
+                        .isServiceProblem()));
         TestKit.eq("code 6 is permanent", Boolean.TRUE, Boolean.valueOf(
                 LastfmResponse.parse("<lfm status=\"failed\"><error code=\"6\">params</error></lfm>")
                         .isPermanent()));

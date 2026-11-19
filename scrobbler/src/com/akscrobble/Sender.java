@@ -148,11 +148,39 @@ public final class Sender {
                 LastfmResponse response = client.scrobble(sanitize(batch));
                 QueuePolicy.Outcome outcome = QueuePolicy.classify(response, maxAttempts(batch));
                 if (outcome == QueuePolicy.Outcome.AUTH_BLOCKED) {
+                    prefs.remove(Prefs.SESSION_KEY, Prefs.SESSION_API_KEY, Prefs.USER_NAME);
                     prefs.putBoolean(Prefs.AUTH_INVALID, true);
                     prefs.putString(Prefs.AUTH_INVALID_FOR, fingerprint);
                     lastAuthInvalid = true;
                     publishAuthBlocked();
                     return;
+                }
+                if (outcome == QueuePolicy.Outcome.HOLD) {
+                    StatusBus.put("sender", "signing service unreachable");
+                    shouldRetry = true;
+                    return;
+                }
+                if (outcome == QueuePolicy.Outcome.SIGNER_UNAVAILABLE) {
+                    prefs.putBoolean(Prefs.SIGNER_UNAVAILABLE, true);
+                    StatusBus.put("sender", "signing service unavailable");
+                    shouldRetry = true;
+                    return;
+                }
+                if (outcome == QueuePolicy.Outcome.SERVICE_PROBLEM) {
+                    prefs.putBoolean(Prefs.SERVICE_PROBLEM, true);
+                    StatusBus.put("sender", "Last.fm service problem");
+                    shouldRetry = true;
+                    return;
+                }
+                if (outcome == QueuePolicy.Outcome.PARTIAL_INVALID) {
+                    List<Integer> invalid = QueuePolicy.invalidIndices(response, batch.size());
+                    if (invalid.isEmpty()) {
+                        database.markRetry(ids(batch), response.errorMessage);
+                        shouldRetry = true;
+                        return;
+                    }
+                    database.markDead(idsAtIndices(batch, invalid), "Signing service rejected item");
+                    continue;
                 }
                 if (outcome == QueuePolicy.Outcome.RETRY) {
                     database.markRetry(ids(batch), response.errorMessage);
@@ -165,6 +193,12 @@ public final class Sender {
                     continue;
                 }
                 markSuccessfulBatch(batch, response);
+                if (prefs.getBoolean(Prefs.SIGNER_UNAVAILABLE)) {
+                    prefs.putBoolean(Prefs.SIGNER_UNAVAILABLE, false);
+                }
+                if (prefs.getBoolean(Prefs.SERVICE_PROBLEM)) {
+                    prefs.putBoolean(Prefs.SERVICE_PROBLEM, false);
+                }
                 if (response.accepted > 0) {
                     prefs.putLong(Prefs.LAST_SENT_AT, System.currentTimeMillis());
                 }
@@ -250,6 +284,12 @@ public final class Sender {
     private static List<Long> ids(List<PendingScrobble> batch) {
         List<Long> ids = new ArrayList<Long>(batch.size());
         for (PendingScrobble item : batch) ids.add(Long.valueOf(item.id));
+        return ids;
+    }
+
+    private static List<Long> idsAtIndices(List<PendingScrobble> batch, List<Integer> indices) {
+        List<Long> ids = new ArrayList<Long>(indices.size());
+        for (Integer index : indices) ids.add(Long.valueOf(batch.get(index.intValue()).id));
         return ids;
     }
 }
