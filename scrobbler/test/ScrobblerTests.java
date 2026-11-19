@@ -38,6 +38,7 @@ public final class ScrobblerTests {
         UpdateManifestTests.run();
         UpdateDecisionTests.run();
         Sha256SinkTests.run();
+        ScrobsignTests.run();
         System.exit(TestKit.finish());
     }
 
