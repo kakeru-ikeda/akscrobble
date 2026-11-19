@@ -8,10 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.akscrobble.core.LastfmResponse;
@@ -19,14 +15,10 @@ import com.akscrobble.core.Strings;
 import java.net.URLEncoder;
 
 public final class AuthActivity extends Activity {
-    private static final String DESKTOP_UA = "Mozilla/5.0 (Linux; Android 9) "
-            + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36";
     private TextView status;
-    private WebView webView;
-    private CheckBox replaceUa;
     private String token;
     private String approvalUrl;
-    private boolean automaticSessionAttempted;
+    private boolean tokenRequestInProgress;
     private LastfmClient client;
 
     @Override public void onCreate(Bundle state) {
@@ -37,77 +29,54 @@ public final class AuthActivity extends Activity {
         Ui.Screen screen = Ui.screen(this, Ui.s(this, Strings.AUTH_TITLE),
                 Ui.backLink(this), false);
         LinearLayout body = screen.body;
-        body.addView(Ui.button(this, Ui.s(this, Strings.AUTH_OPEN_APPROVAL), true,
+        body.addView(Ui.button(this, Ui.s(this, Strings.AUTH_COPY_APPROVAL_URL), true,
                 new View.OnClickListener() {
-                    @Override public void onClick(View view) { requestToken(true, false); }
+                    @Override public void onClick(View view) { copyApprovalUrl(); }
                 }));
         body.addView(Ui.button(this, Ui.s(this, Strings.AUTH_GET_SESSION), false,
                 new View.OnClickListener() {
                     @Override public void onClick(View view) { requestSession(false); }
                 }));
-        body.addView(Ui.button(this, Ui.s(this, Strings.AUTH_SHOW_PC_URL), false,
-                new View.OnClickListener() {
-                    @Override public void onClick(View view) {
-                        if (approvalUrl == null) requestToken(false, true);
-                        else showApprovalUrl(true);
-                    }
-                }));
-        replaceUa = Ui.checkBox(this, Ui.s(this, Strings.AUTH_USE_NEW_UA), false);
-        replaceUa.setChecked(false);
-        replaceUa.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View view) { applyUserAgent(); }
-        });
-        body.addView(replaceUa);
 
         status = Ui.text(this, "", 12, Ui.FG);
         status.setTextIsSelectable(true);
         body.addView(status, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-
-        try {
-            webView = new WebView(this);
-            webView.setBackgroundColor(Ui.BG);
-            WebSettings settings = webView.getSettings();
-            settings.setJavaScriptEnabled(true);
-            settings.setDomStorageEnabled(true);
-            webView.setWebViewClient(new WebViewClient() {
-                @Override public void onPageFinished(WebView view, String url) {
-                    if (!automaticSessionAttempted && token != null && url != null
-                            && url.contains("/api/auth")) {
-                        automaticSessionAttempted = true;
-                        requestSession(true);
-                    }
-                }
-            });
-            body.addView(webView, new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
-        } catch (Throwable error) {
-            webView = null;
-            status.setText(Ui.s(this, Strings.AUTH_WEBVIEW_UNAVAILABLE));
-        }
         new ConfigStore(this).writeTemplateIfAbsent();
     }
 
-    private void requestToken(final boolean openWebView, final boolean copyUrl) {
+    private void copyApprovalUrl() {
+        if (!blank(token) && !blank(approvalUrl)) {
+            showApprovalUrl();
+            return;
+        }
+        if (tokenRequestInProgress) return;
+        requestToken();
+    }
+
+    private void requestToken() {
+        tokenRequestInProgress = true;
         show(Ui.s(this, Strings.AUTH_GETTING_TOKEN));
         NetThread.post(new Runnable() {
             @Override public void run() {
-                LastfmResponse response = client.getToken();
+                final LastfmResponse response = client.getToken();
                 if (!response.isOk() || blank(response.token)) {
-                    showFromWorker(Ui.s(AuthActivity.this, Strings.AUTH_TOKEN_FAILED, reason(response)));
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            tokenRequestInProgress = false;
+                            show(Ui.s(AuthActivity.this, Strings.AUTH_TOKEN_FAILED, reason(response)));
+                        }
+                    });
                     return;
                 }
-                token = response.token;
-                automaticSessionAttempted = false;
-                approvalUrl = buildApprovalUrl(response.apiKey, token);
+                final String newToken = response.token;
+                final String newApprovalUrl = buildApprovalUrl(response.apiKey, newToken);
                 runOnUiThread(new Runnable() {
                     @Override public void run() {
-                        showApprovalUrl(copyUrl);
-                        if (openWebView) {
-                            if (webView == null) show(Ui.s(AuthActivity.this,
-                                    Strings.AUTH_OPEN_ON_PC, approvalUrl));
-                            else { applyUserAgent(); webView.loadUrl(approvalUrl); }
-                        }
+                        token = newToken;
+                        approvalUrl = newApprovalUrl;
+                        tokenRequestInProgress = false;
+                        showApprovalUrl();
                     }
                 });
             }
@@ -150,21 +119,17 @@ public final class AuthActivity extends Activity {
         runOnUiThread(new Runnable() { @Override public void run() { finish(); } });
     }
 
-    private void applyUserAgent() {
-        if (webView == null) return;
-        WebSettings settings = webView.getSettings();
-        settings.setUserAgentString(replaceUa.isChecked() ? DESKTOP_UA : null);
+    private void showApprovalUrl() {
+        boolean copied = copyToClipboard(approvalUrl);
+        String message = copied ? Strings.AUTH_AUTHORIZATION_INSTRUCTIONS
+                : Strings.AUTH_COPY_UNAVAILABLE;
+        show(Ui.s(this, message) + "\n\n" + approvalUrl);
     }
 
-    private void showApprovalUrl(boolean copy) {
-        show(Ui.s(this, Strings.AUTH_APPROVAL_URL, approvalUrl));
-        if (copy && copyToClipboard(approvalUrl)) {
-            show(Ui.s(this, Strings.AUTH_APPROVAL_URL_COPIED, approvalUrl));
-        }
-    }
     private boolean copyToClipboard(String text) {
         try {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            if (clipboard == null) return false;
             clipboard.setPrimaryClip(ClipData.newPlainText("Last.fm approval URL", text));
             return true;
         } catch (RuntimeException unavailable) { return false; }

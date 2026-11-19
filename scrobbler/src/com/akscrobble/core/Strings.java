@@ -43,18 +43,14 @@ public final class Strings {
     public static final String AUTH_TITLE = "auth.title";
     public static final String QUEUE_TITLE = "queue.title";
     public static final String SAN_TITLE = "sanitize.title";
-    public static final String AUTH_OPEN_APPROVAL = "auth.open_approval";
+    public static final String AUTH_COPY_APPROVAL_URL = "auth.copy_approval_url";
     public static final String AUTH_GET_SESSION = "auth.get_session";
-    public static final String AUTH_SHOW_PC_URL = "auth.show_pc_url";
-    public static final String AUTH_USE_NEW_UA = "auth.use_new_ua";
-    public static final String AUTH_WEBVIEW_UNAVAILABLE = "auth.webview_unavailable";
     public static final String AUTH_GETTING_TOKEN = "auth.getting_token";
     public static final String AUTH_TOKEN_FAILED = "auth.token_failed";
-    public static final String AUTH_OPEN_ON_PC = "auth.open_on_pc";
     public static final String AUTH_TOKEN_REQUIRED = "auth.token_required";
     public static final String AUTH_SESSION_FAILED = "auth.session_failed";
-    public static final String AUTH_APPROVAL_URL = "auth.approval_url";
-    public static final String AUTH_APPROVAL_URL_COPIED = "auth.approval_url_copied";
+    public static final String AUTH_AUTHORIZATION_INSTRUCTIONS = "auth.authorization_instructions";
+    public static final String AUTH_COPY_UNAVAILABLE = "auth.copy_unavailable";
     public static final String QUEUE_REFRESH = "queue.refresh";
     public static final String QUEUE_SEND_NOW = "queue.send_now";
     public static final String QUEUE_RETRY_DEAD = "queue.retry_dead";
@@ -200,18 +196,14 @@ public final class Strings {
         {AUTH_TITLE, "Last.fm 認証", "Last.fm authentication", "Last.fm 인증"},
         {SAN_TITLE, "サニタイズ設定", "Sanitize settings", "문자열 정리 설정"},
         {QUEUE_TITLE, "Scrobble キュー", "Scrobble queue", "Scrobble 대기열"},
-        {AUTH_OPEN_APPROVAL, "承認ページを開く", "Open approval page", "승인 페이지 열기"},
+        {AUTH_COPY_APPROVAL_URL, "認証 URL をコピー", "Copy authorization URL", "인증 URL 복사"},
         {AUTH_GET_SESSION, "セッションを取得", "Get session", "세션 가져오기"},
-        {AUTH_SHOW_PC_URL, "PC 用 URL を表示", "Show PC URL", "PC용 URL 표시"},
-        {AUTH_USE_NEW_UA, "新しいブラウザ UA を使用", "Use a newer browser UA", "새 브라우저 UA 사용"},
-        {AUTH_WEBVIEW_UNAVAILABLE, "WebView を利用できません。PC 用 URL を表示して PC で承認してください。", "WebView is unavailable. Show the PC URL and approve on a PC.", "WebView를 사용할 수 없습니다. PC용 URL을 표시해 PC에서 승인하세요."},
         {AUTH_GETTING_TOKEN, "トークンを取得しています…", "Getting token…", "토큰을 가져오는 중…"},
         {AUTH_TOKEN_FAILED, "トークン取得失敗: {0}", "Failed to get token: {0}", "토큰 가져오기 실패: {0}"},
-        {AUTH_OPEN_ON_PC, "WebView は利用できません。PC で開いてください:\n{0}", "WebView is unavailable. Open this URL on a PC:\n{0}", "WebView를 사용할 수 없습니다. PC에서 다음 URL을 여세요:\n{0}"},
         {AUTH_TOKEN_REQUIRED, "先にトークンを取得してください。", "Get a token first.", "먼저 토큰을 가져오세요."},
         {AUTH_SESSION_FAILED, "セッション取得失敗: {0}", "Failed to get session: {0}", "세션 가져오기 실패: {0}"},
-        {AUTH_APPROVAL_URL, "PC でも開ける承認 URL:\n{0}", "Approval URL (can also be opened on a PC):\n{0}", "PC에서도 열 수 있는 승인 URL:\n{0}"},
-        {AUTH_APPROVAL_URL_COPIED, "承認 URL をクリップボードにコピーしました:\n{0}", "Approval URL copied to the clipboard:\n{0}", "승인 URL을 클립보드에 복사했습니다:\n{0}"},
+        {AUTH_AUTHORIZATION_INSTRUCTIONS, "URL をコピーしました。PC か端末の別ブラウザに貼り付けて認証し、完了したら戻って「セッションを取得」を押してください。", "URL copied. Paste it into a PC or another browser on this device to authorize, then return and tap Get session.", "URL을 복사했습니다. PC나 기기의 다른 브라우저에 붙여넣어 인증한 뒤 돌아와 ‘세션 가져오기’를 누르세요."},
+        {AUTH_COPY_UNAVAILABLE, "コピーできません。下の URL を PC か端末の別ブラウザで開いて認証し、完了したら戻って「セッションを取得」を押してください。", "Copy unavailable. Open the URL below on a PC or another browser on this device to authorize, then return and tap Get session.", "복사할 수 없습니다. 아래 URL을 PC나 기기의 다른 브라우저에서 열어 인증한 뒤 돌아와 ‘세션 가져오기’를 누르세요."},
         {QUEUE_REFRESH, "更新", "Refresh", "새로고침"},
         {QUEUE_SEND_NOW, "今すぐ送信", "Send now", "지금 보내기"},
         {QUEUE_RETRY_DEAD, "dead を再送", "Retry dead", "dead 다시 보내기"},
