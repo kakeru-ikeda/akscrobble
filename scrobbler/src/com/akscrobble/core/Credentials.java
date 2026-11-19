@@ -7,13 +7,15 @@ public final class Credentials {
     public final String apiKey;
     public final String apiSecret;
     public final String sessionKey;
+    public final String sessionApiKey;
     private final Map<String, String> sources;
 
-    private Credentials(String apiKey, String apiSecret, String sessionKey,
+    private Credentials(String apiKey, String apiSecret, String sessionKey, String sessionApiKey,
             Map<String, String> sources) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
         this.sessionKey = sessionKey;
+        this.sessionApiKey = sessionApiKey;
         this.sources = sources;
     }
 
@@ -23,11 +25,12 @@ public final class Credentials {
         String key = choose("api_key", file, prefs, builtinKey, sources);
         String secret = choose("api_secret", file, prefs, builtinSecret, sources);
         String session = choose("session_key", file, prefs, "", sources);
-        return new Credentials(key, secret, session, sources);
+        String sessionApiKey = choose("session_api_key", file, prefs, "", sources);
+        return new Credentials(key, secret, session, sessionApiKey, sources);
     }
 
     public boolean isComplete() {
-        return apiKey.length() > 0 && apiSecret.length() > 0 && sessionKey.length() > 0;
+        return sessionKey.length() > 0 && sessionApiKey.length() > 0;
     }
 
     public String source(String field) {
@@ -57,6 +60,7 @@ public final class Credentials {
         if ("apiKey".equals(field)) return "api_key";
         if ("apiSecret".equals(field)) return "api_secret";
         if ("sessionKey".equals(field)) return "session_key";
+        if ("sessionApiKey".equals(field)) return "session_api_key";
         return field == null ? "" : field.toLowerCase();
     }
 }

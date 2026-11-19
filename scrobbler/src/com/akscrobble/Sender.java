@@ -102,7 +102,7 @@ public final class Sender {
 
     /** 認証情報の同一性を判定するための指紋。値そのものは保存しない。 */
     private static String credentialFingerprint(Credentials creds) {
-        return LastfmSig.hexMd5(creds.apiKey + "|" + creds.sessionKey);
+        return LastfmSig.hexMd5(creds.sessionApiKey + "|" + creds.sessionKey);
     }
 
     private void drain(String reason) {
@@ -136,6 +136,7 @@ public final class Sender {
             }
             wakeLock.acquire(60_000L);
             StatusBus.put("sender", "draining (" + reason + ")");
+            LastfmClient client = new LastfmClient(context, creds.sessionKey, creds.sessionApiKey);
             while (true) {
                 List<PendingScrobble> batch = database.takeBatch(50);
                 if (batch.isEmpty()) {
@@ -143,8 +144,6 @@ public final class Sender {
                     StatusBus.put("sender", "idle");
                     return;
                 }
-                LastfmClient client = new LastfmClient(
-                        creds.apiKey, creds.apiSecret, creds.sessionKey);
                 LastfmResponse response = client.scrobble(sanitize(batch));
                 QueuePolicy.Outcome outcome = QueuePolicy.classify(response, maxAttempts(batch));
                 if (outcome == QueuePolicy.Outcome.AUTH_BLOCKED) {

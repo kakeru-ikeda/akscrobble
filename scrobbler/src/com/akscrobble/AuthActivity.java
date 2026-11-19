@@ -14,11 +14,9 @@ import android.webkit.WebViewClient;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import com.akscrobble.core.Credentials;
 import com.akscrobble.core.LastfmResponse;
 import com.akscrobble.core.Strings;
 import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 public final class AuthActivity extends Activity {
@@ -30,9 +28,11 @@ public final class AuthActivity extends Activity {
     private String token;
     private String approvalUrl;
     private boolean automaticSessionAttempted;
+    private LastfmClient client;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
+        client = new LastfmClient(this, "", "");
         // manifest の android:label は固定文字列なので、表示名はここで言語に合わせる。
         setTitle(Ui.s(this, Strings.AUTH_TITLE));
         Ui.Screen screen = Ui.screen(this, Ui.s(this, Strings.AUTH_TITLE),
@@ -94,22 +94,17 @@ public final class AuthActivity extends Activity {
     }
 
     private void requestToken(final boolean openWebView, final boolean copyUrl) {
-        final Credentials credentials = credentials();
-        if (credentials.apiKey.length() == 0 || credentials.apiSecret.length() == 0) {
-            show(Ui.s(this, Strings.AUTH_CREDENTIALS_MISSING));
-            return;
-        }
         show(Ui.s(this, Strings.AUTH_GETTING_TOKEN));
         NetThread.post(new Runnable() {
             @Override public void run() {
-                LastfmResponse response = new LastfmClient(credentials.apiKey,
-                        credentials.apiSecret, "").getToken();
+                LastfmResponse response = client.getToken();
                 if (!response.isOk() || blank(response.token)) {
                     showFromWorker(Ui.s(AuthActivity.this, Strings.AUTH_TOKEN_FAILED, reason(response)));
                     return;
                 }
                 token = response.token;
-                approvalUrl = buildApprovalUrl(credentials.apiKey, token);
+                automaticSessionAttempted = false;
+                approvalUrl = buildApprovalUrl(response.apiKey, token);
                 runOnUiThread(new Runnable() {
                     @Override public void run() {
                         showApprovalUrl(copyUrl);
@@ -126,17 +121,15 @@ public final class AuthActivity extends Activity {
 
     private void requestSession(final boolean silentFailure) {
         if (blank(token)) { if (!silentFailure) show(Ui.s(this, Strings.AUTH_TOKEN_REQUIRED)); return; }
-        final Credentials credentials = credentials();
         NetThread.post(new Runnable() {
             @Override public void run() {
-                LastfmResponse response = new LastfmClient(credentials.apiKey,
-                        credentials.apiSecret, "").getSession(token);
+                LastfmResponse response = client.getSession(token);
                 if (!response.isOk() || blank(response.sessionKey)) {
                     if (!silentFailure) showFromWorker(Ui.s(AuthActivity.this,
                             Strings.AUTH_SESSION_FAILED, reason(response)));
                     return;
                 }
-                saveSession(response.sessionKey, response.sessionName);
+                saveSession(response.sessionKey, response.sessionName, response.apiKey);
             }
         });
     }
@@ -151,29 +144,22 @@ public final class AuthActivity extends Activity {
         prefs.putString(Prefs.SESSION_KEY, session);
         String user = clean(file.get("user_name"));
         if (user.length() > 0) prefs.putString(Prefs.USER_NAME, user);
-        String key = clean(file.get("api_key"));
-        String secret = clean(file.get("api_secret"));
-        if (key.length() > 0) prefs.putString(Prefs.API_KEY, key);
-        if (secret.length() > 0) prefs.putString(Prefs.API_SECRET, secret);
         completeAuthentication();
     }
 
-    private Credentials credentials() {
-        // 解決経路は ConfigStore.credentials に集約する。ここで prefs を直読みすると
-        // 呼び出し元ごとに挙動がずれる（実機で ScrobbleService/Sender だけ api_key が
-        // 空になる不具合を出した）。
-        return ConfigStore.credentials(this);
-    }
-
-    private void saveSession(String session, String user) {
+    private void saveSession(String session, String user, String apiKey) {
         Prefs prefs = new Prefs(this);
         prefs.putString(Prefs.SESSION_KEY, session);
+        prefs.putString(Prefs.SESSION_API_KEY, clean(apiKey));
         prefs.putString(Prefs.USER_NAME, clean(user));
         completeAuthentication();
     }
 
     private void completeAuthentication() {
-        new Prefs(this).putBoolean(Prefs.AUTH_INVALID, false);
+        Prefs prefs = new Prefs(this);
+        prefs.putBoolean(Prefs.AUTH_INVALID, false);
+        prefs.putBoolean(Prefs.SIGNER_UNAVAILABLE, false);
+        prefs.putBoolean(Prefs.SERVICE_PROBLEM, false);
         Intent flush = new Intent(this, ScrobbleService.class);
         flush.setAction(com.akscrobble.core.Const.ACTION_FLUSH);
         startService(flush);

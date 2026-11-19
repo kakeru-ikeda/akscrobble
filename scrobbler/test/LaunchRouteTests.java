@@ -29,6 +29,7 @@ public final class LaunchRouteTests {
         prefs.put("api_key", key);
         prefs.put("api_secret", secret);
         prefs.put("session_key", session);
+        prefs.put("session_api_key", session.length() == 0 ? "" : "session-api-key");
         return LaunchRoute.decide(Credentials.resolve(Collections.<String, String>emptyMap(),
                 prefs, builtinKey, builtinSecret));
     }

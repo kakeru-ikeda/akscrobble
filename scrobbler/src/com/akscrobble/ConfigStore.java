@@ -32,6 +32,7 @@ public final class ConfigStore {
         saved.put("api_key", prefs.getString(Prefs.API_KEY));
         saved.put("api_secret", prefs.getString(Prefs.API_SECRET));
         saved.put("session_key", prefs.getString(Prefs.SESSION_KEY));
+        saved.put("session_api_key", prefs.getString(Prefs.SESSION_API_KEY));
         return Credentials.resolve(file, saved, builtin("API_KEY"), builtin("API_SECRET"));
     }
 

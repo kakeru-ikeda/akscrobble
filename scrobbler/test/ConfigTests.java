@@ -25,16 +25,24 @@ public final class ConfigTests {
                 ConfigFile.parse(ConfigFile.template()).get("session_key"));
 
         Map<String, String> file = map("api_key", "file-key", "api_secret", "",
-                "session_key", "file-session");
+                "session_key", "file-session", "session_api_key", "file-session-key");
         Map<String, String> prefs = map("api_key", "prefs-key", "api_secret", "prefs-secret",
-                "session_key", "prefs-session");
+                "session_key", "prefs-session", "session_api_key", "prefs-session-key");
         Credentials resolved = Credentials.resolve(file, prefs, "builtin-key", "builtin-secret");
         TestKit.eq("file wins per field", "file-key", resolved.apiKey);
         TestKit.eq("empty file falls through to prefs", "prefs-secret", resolved.apiSecret);
         TestKit.eq("session resolves independently", "file-session", resolved.sessionKey);
+        TestKit.eq("session API key resolves independently", "file-session-key", resolved.sessionApiKey);
         TestKit.eq("config source", "config", resolved.source("api_key"));
         TestKit.eq("prefs source", "prefs", resolved.source("apiSecret"));
         TestKit.check("complete credentials", resolved.isComplete());
+
+        Credentials sessionOnly = Credentials.resolve(new HashMap<String, String>(),
+                map("session_key", "session", "session_api_key", "session-key"), "", "");
+        TestKit.check("session pair is complete without API credentials", sessionOnly.isComplete());
+        Credentials missingSessionApiKey = Credentials.resolve(new HashMap<String, String>(),
+                map("session_key", "session"), "builtin-key", "builtin-secret");
+        TestKit.check("session API key is required", !missingSessionApiKey.isComplete());
 
         Credentials builtin = Credentials.resolve(new HashMap<String, String>(),
                 new HashMap<String, String>(), "built-key", "built-secret");
