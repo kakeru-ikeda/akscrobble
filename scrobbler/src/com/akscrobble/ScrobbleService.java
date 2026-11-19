@@ -87,6 +87,7 @@ public final class ScrobbleService extends Service implements PlayerLink.Listene
     @Override
     public void onCreate() {
         super.onCreate();
+        LegacyMigration.run(this);
         startForeground(Const.NOTIF_ID, Notifications.build(this,
                 Ui.s(this, Strings.NOTIF_TITLE), Ui.s(this, Strings.NOTIF_STARTING)));
         StatusBus.serviceStartedElapsed = SystemClock.elapsedRealtime();

@@ -9,8 +9,8 @@ public final class Prefs {
     public static final String SESSION_KEY = "session_key";
     public static final String SESSION_API_KEY = "session_api_key";
     public static final String USER_NAME = "user_name";
-    public static final String API_KEY = "api_key";
-    public static final String API_SECRET = "api_secret";
+    public static final String LEGACY_API_KEY = "api_key";
+    public static final String LEGACY_API_SECRET = "api_secret";
     public static final String SANITIZE_CONFIG = "sanitize_config";
     public static final String SANITIZE_ENABLED = "sanitize_enabled";
     public static final String DISABLED_RULES = "disabled_rules";
@@ -24,6 +24,8 @@ public final class Prefs {
     public static final String LAST_SENT_AT = "last_sent_at";
     public static final String SETUP_DISMISSED = "setup_dismissed";
     public static final String MIGRATION_NOTICE = "migration_notice";
+    public static final String MIGRATED_SCROBSIGN = "migrated_scrobsign";
+    public static final String CONFIG_SCRUBBED = "config_scrubbed";
 
     public static String sourceEnabledKey(String pkg) {
         return Sources.prefKey(pkg);

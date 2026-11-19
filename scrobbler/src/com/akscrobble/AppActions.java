@@ -122,10 +122,11 @@ public final class AppActions {
             for (Map.Entry<String, ?> entry : all.getAll().entrySet()) {
                 String key = entry.getKey();
                 // 診断ダンプは issue に添付させる想定なので、秘密は全て伏せる。
-                // api_key もユーザー自身が取得した資格情報なので伏せる
-                // （どこから解決されたかは api_key source 行で分かる）。
-                Object value = Prefs.SESSION_KEY.equals(key) || Prefs.API_SECRET.equals(key)
-                        || Prefs.API_KEY.equals(key) ? "***" : entry.getValue();
+                // session values and legacy credentials can contain secrets.
+                Object value = Prefs.SESSION_KEY.equals(key)
+                        || Prefs.SESSION_API_KEY.equals(key)
+                        || Prefs.LEGACY_API_KEY.equals(key)
+                        || Prefs.LEGACY_API_SECRET.equals(key) ? "***" : entry.getValue();
                 // sanitize_config は改行と区切り文字を含む。1 pref = 1 行を保って
                 // 診断ダンプを読める形に留める。
                 text.append(key).append('=').append(oneLine(value)).append('\n');

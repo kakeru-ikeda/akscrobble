@@ -66,6 +66,12 @@ public final class ConfigStore {
 
     public File configFile() { return primary(); }
 
+    public File[] candidateFiles() {
+        File first = primary();
+        File second = secondary();
+        return second == null ? new File[] { first } : new File[] { first, second };
+    }
+
     private File secondary() {
         File directory = context.getExternalFilesDir(null);
         return directory == null ? null : new File(directory, "config.properties");

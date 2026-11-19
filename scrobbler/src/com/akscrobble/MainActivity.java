@@ -72,6 +72,7 @@ public final class MainActivity extends Activity {
         super.onCreate(state);
         createdLanguage = Ui.lang(this);
         installCrashHandler();
+        LegacyMigration.run(this);
         if (LaunchRoute.decide(ConfigStore.credentials(this),
                 new Prefs(this).getBoolean(Prefs.SETUP_DISMISSED)) == LaunchRoute.SETUP) {
             startActivity(new Intent(this, SetupActivity.class));
@@ -225,7 +226,10 @@ public final class MainActivity extends Activity {
 
     @Override public void onRequestPermissionsResult(int code, String[] permissions, int[] results) {
         super.onRequestPermissionsResult(code, permissions, results);
-        if (code == REQ_STORAGE) showToast(AppActions.storageResult(this));
+        if (code == REQ_STORAGE) {
+            LegacyMigration.run(this);
+            showToast(AppActions.storageResult(this));
+        }
     }
 
     private void installCrashHandler() {

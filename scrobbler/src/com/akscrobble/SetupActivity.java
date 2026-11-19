@@ -45,7 +45,10 @@ public final class SetupActivity extends Activity {
     @Override public void onRequestPermissionsResult(int code, String[] permissions,
             int[] results) {
         super.onRequestPermissionsResult(code, permissions, results);
-        if (code == REQ_STORAGE) refreshRoute();
+        if (code == REQ_STORAGE) {
+            LegacyMigration.run(this);
+            refreshRoute();
+        }
     }
 
     private void buildAuthGroup() {
