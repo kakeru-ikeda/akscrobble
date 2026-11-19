@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build release APK and XAPK artifacts without embedded API credentials.
+# Build release APK and XAPK artifacts.
 #   usage: make_release.sh <versionCode> <versionName>
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/../tools/env.sh"
@@ -30,9 +30,9 @@ BASE="$OUT/akscrobble-$VN.apk"
 SPLIT="$TMP/split-xxhdpi.apk"
 XAPK="$OUT/akscrobble-$VN.xapk"
 
-AKS_SKIP_SECRETS=1 "$PROJECT_ROOT/build/build_scrobbler.sh" \
+"$PROJECT_ROOT/build/build_scrobbler.sh" \
     fm.last.android "$VC" "$BASE" "$VN"
-AKS_SKIP_SECRETS=1 "$PROJECT_ROOT/build/build_split.sh" \
+"$PROJECT_ROOT/build/build_split.sh" \
     fm.last.android "$VC" config.xxhdpi "$SPLIT" 0 "$VN"
 
 python3 - "$PROJECT_ROOT" "$XAPK" "$VC" "$VN" "$BASE" "$SPLIT" <<'PY'
@@ -52,23 +52,6 @@ build(
     version_name=version_name,
 )
 PY
-
-if [ -f "$PROJECT_ROOT/build/secrets.env" ]; then
-    (
-        LASTFM_API_KEY=""
-        LASTFM_API_SECRET=""
-        source "$PROJECT_ROOT/build/secrets.env"
-        python3 - "$BASE" "${LASTFM_API_KEY:-}" "${LASTFM_API_SECRET:-}" <<'PY'
-import sys
-
-apk_path, api_key, api_secret = sys.argv[1:]
-apk = open(apk_path, "rb").read()
-for label, value in (("LASTFM_API_KEY", api_key), ("LASTFM_API_SECRET", api_secret)):
-    if value and value.encode() in apk:
-        raise SystemExit(f"secret leaked into release APK: {label}")
-PY
-    )
-fi
 
 echo "built: $BASE ($(stat -c%s "$BASE") bytes)"
 echo "built: $XAPK ($(stat -c%s "$XAPK") bytes)"

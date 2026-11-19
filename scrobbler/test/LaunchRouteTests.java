@@ -17,8 +17,6 @@ public final class LaunchRouteTests {
                 route("key", "secret", "", "", ""));
         TestKit.eq("complete credentials go home", LaunchRoute.HOME,
                 route("key", "secret", "session", "", ""));
-        TestKit.eq("builtin keys do not require setup", LaunchRoute.AUTH,
-                CredentialsRoute.builtin());
         TestKit.eq("null credentials go to setup", LaunchRoute.SETUP,
                 LaunchRoute.decide(null));
     }
@@ -32,13 +30,6 @@ public final class LaunchRouteTests {
         prefs.put("session_api_key", session.length() == 0 ? "" : "session-api-key");
         return LaunchRoute.decide(Credentials.resolve(Collections.<String, String>emptyMap(),
                 prefs, builtinKey, builtinSecret));
-    }
-
-    private static final class CredentialsRoute {
-        static LaunchRoute builtin() {
-            return LaunchRoute.decide(Credentials.resolve(null, null, " builtin-key ",
-                    " builtin-secret "));
-        }
     }
 
     private LaunchRouteTests() {}

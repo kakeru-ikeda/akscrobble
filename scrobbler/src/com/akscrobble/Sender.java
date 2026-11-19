@@ -12,7 +12,6 @@ import android.util.Log;
 import com.akscrobble.core.BackoffPolicy;
 import com.akscrobble.core.Const;
 import com.akscrobble.core.Credentials;
-import com.akscrobble.core.LastfmSig;
 import com.akscrobble.core.LastfmResponse;
 import com.akscrobble.core.PendingScrobble;
 import com.akscrobble.core.QueuePolicy;
@@ -101,16 +100,12 @@ public final class Sender {
     }
 
     /** 認証情報の同一性を判定するための指紋。値そのものは保存しない。 */
-    private static String credentialFingerprint(Credentials creds) {
-        return LastfmSig.hexMd5(creds.sessionApiKey + "|" + creds.sessionKey);
-    }
-
     private void drain(String reason) {
         boolean shouldRetry = false;
         try {
             Prefs prefs = new Prefs(context);
             Credentials creds = ConfigStore.credentials(context);
-            String fingerprint = credentialFingerprint(creds);
+            String fingerprint = creds.fingerprint();
             if (prefs.getBoolean(Prefs.AUTH_INVALID)) {
                 // 認証情報が当時と同じなら本当に再認証が要る。変わっていれば
                 // 設定ファイル差し替えや再認証で直った可能性があるので一度試す。

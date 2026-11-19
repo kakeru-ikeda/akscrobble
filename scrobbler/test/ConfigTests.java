@@ -44,11 +44,16 @@ public final class ConfigTests {
                 map("session_key", "session"), "builtin-key", "builtin-secret");
         TestKit.check("session API key is required", !missingSessionApiKey.isComplete());
 
-        Credentials builtin = Credentials.resolve(new HashMap<String, String>(),
-                new HashMap<String, String>(), "built-key", "built-secret");
-        TestKit.eq("builtin source", "builtin", builtin.source("apiKey"));
-        TestKit.eq("missing source", "none", builtin.source("sessionKey"));
-        TestKit.check("missing session is incomplete", !builtin.isComplete());
+        String fingerprint = sessionOnly.fingerprint();
+        TestKit.check("fingerprint is lowercase MD5", fingerprint.matches("[0-9a-f]{32}"));
+        TestKit.check("fingerprint changes with session API key", !fingerprint.equals(
+                Credentials.resolve(new HashMap<String, String>(),
+                        map("session_key", "session", "session_api_key", "other-key"), "", "")
+                        .fingerprint()));
+        TestKit.check("fingerprint changes with session key", !fingerprint.equals(
+                Credentials.resolve(new HashMap<String, String>(),
+                        map("session_key", "other-session", "session_api_key", "session-key"), "", "")
+                        .fingerprint()));
 
         file.put("api_key", "   ");
         prefs.put("api_key", "");

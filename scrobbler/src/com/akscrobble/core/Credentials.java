@@ -2,6 +2,9 @@ package com.akscrobble.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public final class Credentials {
     public final String apiKey;
@@ -31,6 +34,18 @@ public final class Credentials {
 
     public boolean isComplete() {
         return sessionKey.length() > 0 && sessionApiKey.length() > 0;
+    }
+
+    public String fingerprint() {
+        try {
+            byte[] digest = MessageDigest.getInstance("MD5")
+                    .digest((sessionApiKey + "|" + sessionKey).getBytes(StandardCharsets.UTF_8));
+            StringBuilder result = new StringBuilder(32);
+            for (byte value : digest) result.append(String.format("%02x", value & 0xff));
+            return result.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("MD5 is unavailable", e);
+        }
     }
 
     public String source(String field) {
