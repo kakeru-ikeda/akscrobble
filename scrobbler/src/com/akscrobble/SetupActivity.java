@@ -78,7 +78,6 @@ public final class SetupActivity extends Activity {
                 new View.OnClickListener() {
                     @Override public void onClick(View view) { goHome(); }
                 }), matchWrap());
-        authGroup.setVisibility(View.GONE);
         body.addView(authGroup, matchWrap());
     }
 
