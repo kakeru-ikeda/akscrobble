@@ -23,6 +23,7 @@ public final class Prefs {
     public static final String LANGUAGE = "language";
     public static final String LAST_SENT_AT = "last_sent_at";
     public static final String SETUP_DISMISSED = "setup_dismissed";
+    public static final String MIGRATION_NOTICE = "migration_notice";
 
     public static String sourceEnabledKey(String pkg) {
         return Sources.prefKey(pkg);

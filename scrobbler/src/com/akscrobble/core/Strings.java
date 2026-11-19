@@ -133,6 +133,8 @@ public final class Strings {
     public static final String SETUP_STEP_KEYS = "setup.step_keys";
     public static final String SETUP_STEP_AUTH = "setup.step_auth";
     public static final String SETUP_STEP_SOURCES = "setup.step_sources";
+    public static final String SETUP_REAUTH_NOTICE = "setup.reauth_notice";
+    public static final String SETUP_SIGNING_NOTE = "setup.signing_note";
     public static final String SETUP_HEADING_KEYS = "setup.heading_keys";
     public static final String SETUP_HEADING_AUTH = "setup.heading_auth";
     public static final String SETUP_AUTH_HELP = "setup.auth_help";
@@ -165,6 +167,9 @@ public final class Strings {
     public static final String HOME_ADB_SUB = "home.adb_sub";
     public static final String HOME_BANNER_AUTH_INVALID = "home.banner_auth_invalid";
     public static final String HOME_BANNER_NOT_AUTHED = "home.banner_not_authed";
+    public static final String HOME_BANNER_MIGRATED = "home.banner_migrated";
+    public static final String HOME_BANNER_SIGNER_UNAVAILABLE = "home.banner_signer_unavailable";
+    public static final String HOME_BANNER_SERVICE_PROBLEM = "home.banner_service_problem";
     public static final String SRC_CONNECTED = "src.connected";
     public static final String SRC_CONNECTING = "src.connecting";
     public static final String SRC_DISCONNECTED = "src.disconnected";
@@ -236,7 +241,7 @@ public final class Strings {
         {AUTH_SHOW_PC_URL, "PC 用 URL を表示", "Show PC URL", "PC용 URL 표시"},
         {AUTH_IMPORT_CONFIG, "設定ファイルから読込", "Load from configuration file", "설정 파일에서 불러오기"},
         {AUTH_USE_NEW_UA, "新しいブラウザ UA を使用", "Use a newer browser UA", "새 브라우저 UA 사용"},
-        {AUTH_WEBVIEW_UNAVAILABLE, "WebView を利用できません。PC または設定ファイル経路を使用してください。", "WebView is unavailable. Use a PC or the configuration file method.", "WebView를 사용할 수 없습니다. PC 또는 설정 파일 방식을 사용하세요."},
+        {AUTH_WEBVIEW_UNAVAILABLE, "WebView を利用できません。PC 用 URL を表示して PC で承認してください。", "WebView is unavailable. Show the PC URL and approve on a PC.", "WebView를 사용할 수 없습니다. PC용 URL을 표시해 PC에서 승인하세요."},
         {AUTH_CREDENTIALS_MISSING, "API key / secret が未設定です。", "API key / secret is not configured.", "API key / secret이 설정되지 않았습니다."},
         {AUTH_GETTING_TOKEN, "トークンを取得しています…", "Getting token…", "토큰을 가져오는 중…"},
         {AUTH_TOKEN_FAILED, "トークン取得失敗: {0}", "Failed to get token: {0}", "토큰 가져오기 실패: {0}"},
@@ -318,11 +323,11 @@ public final class Strings {
         {UI_SETTINGS, "設定", "Settings", "설정"},
         {SETUP_TITLE, "セットアップ", "Setup", "초기 설정"},
         {SETUP_STEP_KEYS, "1 Last.fm キー", "1 Last.fm key", "1 Last.fm 키"},
-        {SETUP_STEP_AUTH, "2 認証", "2 Authorize", "2 인증"},
-        {SETUP_STEP_SOURCES, "3 ソース", "3 Sources", "3 소스"},
+        {SETUP_STEP_AUTH, "1 認証", "1 Authorize", "1 인증"},
+        {SETUP_STEP_SOURCES, "2 ソース", "2 Sources", "2 소스"},
         {SETUP_HEADING_KEYS, "まず Last.fm の API キーを設定します", "First, set up your Last.fm API key", "먼저 Last.fm API 키를 설정합니다"},
-        {SETUP_HEADING_AUTH, "次に Last.fm で認証します", "Next, authorize AKScrobble on Last.fm", "다음으로 Last.fm에서 인증합니다"},
-        {SETUP_AUTH_HELP, "API キーを設定しました。Last.fm で AKScrobble を承認してください。", "Your API key is set. Approve AKScrobble on Last.fm.", "API 키를 설정했습니다. Last.fm에서 AKScrobble을 승인하세요."},
+        {SETUP_HEADING_AUTH, "Last.fm で認証します", "Authorize AKScrobble on Last.fm", "Last.fm에서 인증합니다"},
+        {SETUP_AUTH_HELP, "Last.fm の承認ページで AKScrobble を許可してください。API キーの用意は不要です。", "Allow AKScrobble on the Last.fm approval page. You do not need your own API key.", "Last.fm 승인 페이지에서 AKScrobble을 허용하세요. API 키를 따로 준비할 필요가 없습니다."},
         {SETUP_GET_KEY_AT, "取得先: {0}", "Get one at: {0}", "발급처: {0}"},
         {SETUP_TAB_INPUT, "アプリで入力", "Type in app", "앱에서 입력"},
         {SETUP_TAB_FILE, "ファイルを置く", "Use a file", "파일 배치"},
@@ -337,7 +342,7 @@ public final class Strings {
         {SETUP_FILE_KEYS_MISSING, "ファイルに api_key と api_secret が見つかりません。", "api_key and api_secret were not found in the file.", "파일에서 api_key와 api_secret을 찾을 수 없습니다."},
         {SETUP_STORAGE_NEEDED, "ファイルを扱うにはストレージ権限が必要です。", "Storage permission is required to use the file.", "파일을 사용하려면 저장소 권한이 필요합니다."},
         {SETUP_LATER, "あとで(ホームへ)", "Later (go to home)", "나중에 (홈으로)"},
-        {SETUP_AFTER_KEYS, "キー設定後", "After key setup", "키 설정 후"},
+        {SETUP_AFTER_KEYS, "認証後", "After authorization", "인증 후"},
         {HOME_SCROBBLING, "スクロブル中", "Scrobbling", "스크로블 중"},
         {HOME_STOPPED, "停止中", "Stopped", "중지됨"},
         {HOME_SENDING_AS, "{0} として送信", "Sending as {0}", "{0}(으)로 전송"},
@@ -352,6 +357,11 @@ public final class Strings {
         {HOME_ADB_SUB, "開発者向け設定を開く", "Open developer settings", "개발자 설정 열기"},
         {HOME_BANNER_AUTH_INVALID, "Last.fm の認証が無効になりました。タップして再認証してください。", "Last.fm authorization is no longer valid. Tap to authorize again.", "Last.fm 인증이 더 이상 유효하지 않습니다. 눌러서 다시 인증하세요."},
         {HOME_BANNER_NOT_AUTHED, "Last.fm の認証がまだです。タップして認証してください。", "Last.fm is not authorized yet. Tap to authorize.", "아직 Last.fm 인증을 하지 않았습니다. 눌러서 인증하세요."},
+        {SETUP_REAUTH_NOTICE, "アップデートで Last.fm の認証方式が変わりました。もう一度認証してください。未送信の scrobble は保持され、認証後に送信されます。", "This update changed how AKScrobble signs in to Last.fm. Please authorize again. Unsent scrobbles are kept and will be sent after you authorize.", "업데이트로 Last.fm 인증 방식이 바뀌었습니다. 다시 인증해 주세요. 전송되지 않은 scrobble은 보관되며 인증 후 전송됩니다."},
+        {SETUP_SIGNING_NOTE, "送信のたびに署名サービス scrobsign.sukisuki.club が要求に署名します。署名サービスは session key と曲の情報を受け取りますが、保存しません。", "Each request is signed by the signing service scrobsign.sukisuki.club. It receives your session key and track details but does not store them.", "요청마다 서명 서비스 scrobsign.sukisuki.club가 서명합니다. 서명 서비스는 session key와 곡 정보를 받지만 저장하지 않습니다."},
+        {HOME_BANNER_MIGRATED, "アップデートにより再認証が必要です。タップして認証してください。未送信の scrobble は保持しています。", "This update requires you to authorize again. Tap to authorize. Unsent scrobbles are kept.", "업데이트로 다시 인증해야 합니다. 탭하여 인증하세요. 전송되지 않은 scrobble은 보관 중입니다."},
+        {HOME_BANNER_SIGNER_UNAVAILABLE, "署名サービスを利用できないため送信を止めています。未送信の scrobble は保持しています。", "Sending is paused because the signing service is unavailable. Unsent scrobbles are kept.", "서명 서비스를 사용할 수 없어 전송을 멈췄습니다. 전송되지 않은 scrobble은 보관 중입니다."},
+        {HOME_BANNER_SERVICE_PROBLEM, "Last.fm 側の問題で送信できません。未送信の scrobble は保持し、あとで再送します。", "Last.fm is rejecting requests because of a problem on its side. Unsent scrobbles are kept and will be retried.", "Last.fm 측 문제로 전송할 수 없습니다. 전송되지 않은 scrobble은 보관하고 나중에 다시 보냅니다."},
         {SRC_CONNECTED, "接続中", "Connected", "연결됨"},
         {SRC_CONNECTING, "接続しています", "Connecting", "연결하는 중"},
         {SRC_DISCONNECTED, "未接続(再試行待ち)", "Not connected (will retry)", "연결 안 됨 (재시도 대기)"},

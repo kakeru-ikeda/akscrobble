@@ -142,6 +142,7 @@ public final class AuthActivity extends Activity {
         prefs.putBoolean(Prefs.AUTH_INVALID, false);
         prefs.putBoolean(Prefs.SIGNER_UNAVAILABLE, false);
         prefs.putBoolean(Prefs.SERVICE_PROBLEM, false);
+        prefs.putBoolean(Prefs.MIGRATION_NOTICE, false);
         prefs.putBoolean(Prefs.SETUP_DISMISSED, true);
         Intent flush = new Intent(this, ScrobbleService.class);
         flush.setAction(com.akscrobble.core.Const.ACTION_FLUSH);

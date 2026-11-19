@@ -38,6 +38,7 @@ public final class MainActivity extends Activity {
     private final Switch[] sourceToggles = new Switch[sourcePackages.length];
     private final String[] lastSourceStatus = new String[sourcePackages.length];
     private TextView banner;
+    private boolean bannerOpensAuth;
     private TextView heroTitle;
     private TextView heroSubtitle;
     private TextView nowHeading;
@@ -60,6 +61,7 @@ public final class MainActivity extends Activity {
     private final Runnable refresh = new Runnable() {
         @Override public void run() {
             updateStatus(StatusBus.snapshot());
+            refreshBanner(ConfigStore.credentials(MainActivity.this));
             tickCount++;
             if (tickCount % 5 == 0) refreshQueueCounts();
             if (refreshing) handler.postDelayed(this, 1000L);
@@ -82,7 +84,9 @@ public final class MainActivity extends Activity {
                     @Override public void onClick(View view) { open(SettingsActivity.class); }
                 }), true);
         banner = Ui.banner(this, "", new View.OnClickListener() {
-            @Override public void onClick(View view) { open(AuthActivity.class); }
+            @Override public void onClick(View view) {
+                if (bannerOpensAuth) open(AuthActivity.class);
+            }
         });
         banner.setVisibility(View.GONE);
         screen.body.addView(banner);
@@ -244,11 +248,27 @@ public final class MainActivity extends Activity {
     private void refreshBanner(com.akscrobble.core.Credentials credentials) {
         Prefs prefs = new Prefs(this);
         boolean invalid = prefs.getBoolean(Prefs.AUTH_INVALID);
-        boolean needsAuth = LaunchRoute.decide(credentials,
-                prefs.getBoolean(Prefs.SETUP_DISMISSED)) == LaunchRoute.AUTH;
-        if (invalid || needsAuth) {
-            setTextIfChanged(banner, Ui.s(this, invalid
-                    ? Strings.HOME_BANNER_AUTH_INVALID : Strings.HOME_BANNER_NOT_AUTHED));
+        LaunchRoute route = LaunchRoute.decide(credentials,
+                prefs.getBoolean(Prefs.SETUP_DISMISSED));
+        String bannerString = null;
+        bannerOpensAuth = false;
+        if (invalid) {
+            bannerString = Strings.HOME_BANNER_AUTH_INVALID;
+            bannerOpensAuth = true;
+        } else if (route == LaunchRoute.AUTH
+                && prefs.getBoolean(Prefs.MIGRATION_NOTICE)) {
+            bannerString = Strings.HOME_BANNER_MIGRATED;
+            bannerOpensAuth = true;
+        } else if (route == LaunchRoute.AUTH) {
+            bannerString = Strings.HOME_BANNER_NOT_AUTHED;
+            bannerOpensAuth = true;
+        } else if (prefs.getBoolean(Prefs.SIGNER_UNAVAILABLE)) {
+            bannerString = Strings.HOME_BANNER_SIGNER_UNAVAILABLE;
+        } else if (prefs.getBoolean(Prefs.SERVICE_PROBLEM)) {
+            bannerString = Strings.HOME_BANNER_SERVICE_PROBLEM;
+        }
+        if (bannerString != null) {
+            setTextIfChanged(banner, Ui.s(this, bannerString));
             banner.setVisibility(View.VISIBLE);
         } else {
             banner.setVisibility(View.GONE);
