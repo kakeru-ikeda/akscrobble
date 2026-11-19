@@ -12,25 +12,17 @@ public final class ConfigTests {
         TestKit.eq("value preserves equals", "a=b=c", parsed.get("session_key"));
         TestKit.eq("empty value retained", "", parsed.get("empty"));
         TestKit.check("comments and invalid lines ignored", parsed.size() == 3);
-        TestKit.check("template contains credential fields",
-                ConfigFile.template().contains("api_key=")
-                        && ConfigFile.template().contains("api_secret=")
-                        && ConfigFile.template().contains("session_key="));
-        // 端末で直接開いた人がここだけで完結できるよう、雛形に案内を持たせている。
-        // README の「設定ファイルが主経路」という記述と対になる。
-        TestKit.check("template points at the API account page",
-                ConfigFile.template().contains("last.fm/api/account/create"));
-        TestKit.check("template says the callback fields stay empty",
-                ConfigFile.template().contains("Callback URL"));
-        TestKit.check("template tells the user to import it",
-                ConfigFile.template().contains("Load configuration"));
-        TestKit.check("template says how to confirm it took effect",
-                ConfigFile.template().contains("api_key source"));
-        TestKit.check("template says it wins over in-app values",
-                ConfigFile.template().contains("take precedence"));
-        // 雛形は自分自身の書式で読み戻せること。コメント行が parse を壊さない保証。
-        TestKit.eq("template parses back to empty values", "",
-                ConfigFile.parse(ConfigFile.template()).get("api_key"));
+        TestKit.check("template omits API credentials",
+                !ConfigFile.template().contains("\napi_key=")
+                        && !ConfigFile.template().contains("\napi_secret="));
+        TestKit.check("template contains session fields",
+                ConfigFile.template().contains("session_key=")
+                        && ConfigFile.template().contains("session_api_key=")
+                        && ConfigFile.template().contains("user_name="));
+        TestKit.check("template describes in-app authorization",
+                ConfigFile.template().contains("Last.fm authorization is done in the app"));
+        TestKit.eq("template parses session key as empty", "",
+                ConfigFile.parse(ConfigFile.template()).get("session_key"));
 
         Map<String, String> file = map("api_key", "file-key", "api_secret", "",
                 "session_key", "file-session");
